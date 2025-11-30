@@ -9,7 +9,6 @@ import geopandas as gpd
 from pathlib import Path
 import json
 import re
-import geopandas as gpd
 
 #--- Visualisations ---#
 import plotly.express as px
@@ -65,48 +64,65 @@ print(f" Canadian Province / Territory boundaries loaded. {provinces.crs}\n")
 
 # AvCanada Ski Regions
 print('Isolate all AvCan regions.')
-avcan_clean = avcan_shapes.copy()
-print('AvCan column cleaning')
+avcan_cleaning = avcan_shapes.copy()
+print('AvCan cleaning...')
 colnames = {
     'polygon_name':'subregion',
     'reference_region':'region'
 }
-avcan_clean = avcan_clean.rename(columns=colnames)
-regions = avcan_clean[["region","subregion", "geometry"]]   # adjust column names as needed
+avcan_cleaning = avcan_cleaning.rename(columns=colnames)
+regions = avcan_cleaning[["region","subregion", "geometry"]]   # adjust column names as needed
 
 
-print("Classifying AvCan subregions to Canadian Province / Territory...")
+print(" Classifying AvCan subregions to Canadian Province / Territory...")
 
-# Compute both layers into projected CRS
+# 1) Project to a projected CRS
 regions_proj   = regions.to_crs(3347)
-provinces_proj = provinces.to_crs(3347)         # (StatsCan provinces are originally 3347)
+provinces_proj = provinces.to_crs(3347)   # StatsCan is already 3347, but this is safe
 
+# 2) Use centroids for the spatial join
+regions_centroids = regions_proj.copy()
+regions_centroids["geometry"] = regions_centroids.geometry.centroid
 
-print(' Joined by subregion boundaries within province/territory boundary.')
-# Join AvCan region to province by shapefile boundaries across centroids
+print("  Joining subregion *centroids* to province/territory polygons...")
 regions_with_admin = gpd.sjoin(
-    regions_proj,
-    provinces_proj[["PRENAME", "geometry"]],   # English name
+    regions_centroids,
+    provinces_proj[["PRENAME", "geometry"]].rename(columns={"PRENAME": "prov_terr"}),
     how="left",
     predicate="within"
 ).drop(columns="index_right")
 
+# 3) Restore original subregion polygons as the geometry
+regions_with_admin = regions_with_admin.set_geometry(regions_proj.geometry)
 
+# 4) Make this your cleaned AvCan layer
+avcan_clean = regions_with_admin[["region", "subregion", "prov_terr", "geometry"]].copy()
 
-regions_with_admin = regions_with_admin.rename(columns={"PRENAME": "prov_terr"})
+print("AvCan regions cleaned.")
 
-regions_with_admin = regions_with_admin.drop(columns="geometry")
-regions_with_admin = regions.merge(
-    regions_with_admin[["region", "subregion", "prov_terr"]],
-    on=["region", "subregion"],
-    how="left"
-)
+missing = avcan_clean[avcan_clean["prov_terr"].isna()][["region", "subregion"]]
+if missing.empty:
+    print(" All subregions have a province/territory.")
+else:
+    print(" Subregions with no province/territory match:\n", missing)
+
 
 
 print('\nOverlaying Canadian fires with respective AvCan subregions..')
-canada_fires=canada_fires.drop(columns="prov_terr")
+# 1) Make sure both layers share the same projected CRS
+analysis_crs = regions_with_admin.crs  # this should be EPSG:3347
+
+if canada_fires.crs != analysis_crs:
+    canada_fires = canada_fires.to_crs(analysis_crs)
+    
+print(f' NBAC fires CRS: {canada_fires.crs}')
+print(f' AvCan regions CRS: {regions_with_admin.crs}')
+
+# Optional: drop with errors="ignore" in case prov_terr isn't there
+canada_fires = canada_fires.drop(columns="prov_terr", errors="ignore")
+
 # Overlay BcFires to respective AvCanada Ski Regions
-print('Splitting fires across AvCan subregions...')
+print(' Splitting fires across AvCan subregions...')
 fire_stats = gpd.overlay(
     canada_fires,
     regions_with_admin,
@@ -115,14 +131,11 @@ fire_stats = gpd.overlay(
 print(f' Overlay complete.')
 
 
-# Make sure we use a projected CRS in metres for area calc
-if fire_stats.crs.is_geographic:  # e.g. EPSG:4326
-    fire_stats = fire_stats.to_crs("EPSG:3978")  # Canada Lambert as an example
-
-print(f'''Convert fires_region variable CRS type to projected coordinates.
+# fire_stats is already projected => no need for extra CRS logic
+print(f"""Convert fires_region variable CRS type to projected coordinates.
     Projected CRS type: {fire_stats.crs} (metres)
     Projected CRS name: {fire_stats.crs.name}\n
-''')
+""")
 
 
 print('Calculating area burned (ha) for each AvCan subregion split fire.')
