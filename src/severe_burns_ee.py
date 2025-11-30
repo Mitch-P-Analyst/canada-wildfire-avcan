@@ -444,7 +444,7 @@ print(f'Avalanche Canada Fires transformed: {AVCAN_FIRES_wgs.crs}\n')
 
 # --- GeoPandas -> Earth Engine FeatureCollection ---
 print(f'Load AvCan Fires into Google Earth Engine as Feature Collection. \n Loading...')
-AVCAN_FIRES_ASSEST_ID = "projects/wildfire-canada-475322/assets/AvCan_fire_2014_2024"
+AVCAN_FIRES_ASSEST_ID = "projects/wildfire-canada-475322/assets/AvCan_fires_2009_2024"
 AvCan = ee.FeatureCollection(AVCAN_FIRES_ASSEST_ID)
 print("EE FeatureCollection size:", AvCan.size().getInfo())
 

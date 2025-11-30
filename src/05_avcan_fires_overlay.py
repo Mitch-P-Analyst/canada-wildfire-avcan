@@ -41,12 +41,23 @@ print(f" Avalanche Canada Regions loaded. {avcan_shapes.crs}\n")
 
 # NBAC / BC fire perimeters 
 fires_dir = REPO_ROOT / "data/processed/Canada_fires"
+
+
+
+#-------------------------------------------------#
+# If desire manual selection of fires year range, manipulate this comment block
+
 shp_files = list(fires_dir.glob("*.shp"))
 
 if not shp_files:
     raise FileNotFoundError(f"No shapefiles found in {fires_dir}\n")
 
 fires_path = max(shp_files, key=extract_max_year)
+
+# fires_path = fires_dir / "Canada_fires_2009_2024.shp"
+#-------------------------------------------------#
+
+
 
 print(f"Loading latest Canada fires shapefile... \n File name: {fires_path.name}")
 canada_fires = gpd.read_file(fires_path)

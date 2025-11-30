@@ -116,7 +116,7 @@ for name, gdf in all_gdfs_dct.items():
         }
 
 if not irregular:
-    print(f"All shapefiles match the {reference_year} reference structure: {ref_key}")
+    print(f" All shapefiles match the {reference_year} reference structure: {ref_key}")
 else:
     print(f"{len(irregular)} shapefile(s) differ from {reference_year} reference: {ref_key}\n")
     for name, diffs in irregular.items():
@@ -165,9 +165,9 @@ fires_all_years = gpd.GeoDataFrame(
 
 combined = {"NBAC_all_years": fires_all_years}
 all_gdf_df = combined["NBAC_all_years"]
-print(f'Singular GDF produced.')
+print(f' Singular GDF produced.')
 
-print(f'All fire geometries dataframe shape: {all_gdf_df.shape} \n')
+print(f' All fire geometries dataframe shape: {all_gdf_df.shape} \n')
 
 # print(f'Null Values: \n{all_gdf_df.isnull().sum()}\n')
 
@@ -242,4 +242,4 @@ try:
 except Exception as e:
     raise RuntimeError(f'Canadian fires Shapefile failed to export: {e}\n')
 
-print('Py file complete.')
+print('\nPy file complete.')

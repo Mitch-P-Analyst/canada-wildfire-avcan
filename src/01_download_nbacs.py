@@ -23,7 +23,7 @@ BASE_URL = "https://cwfis.cfs.nrcan.gc.ca/downloads/nbac/"
 
 print(f'Source for Canadian Nationaal Burn Area Composites (NBAC): \n {BASE_URL}')
 
-YEARS = range(2014, 2025)                       # Adjust to chosen years
+YEARS = range(2009, 2025)                       # Adjust to chosen years
 print(f'Selected years: {YEARS}\n')
 
 
@@ -94,7 +94,7 @@ def main() -> None:
         print(f"Found summary stats file: {stats_name}")
         download_file(stats_name, RAW_DIR)
 
-    print("Canada National Burned Area Composite (NBAC) data acquired.")
+    print("\nCanada National Burned Area Composite (NBAC) data acquired.\n\n Py file complete.")
 
 print('Beginning download...')
 if __name__ == "__main__":
