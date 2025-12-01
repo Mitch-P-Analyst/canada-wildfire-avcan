@@ -12,10 +12,11 @@ The current status of this geospatial analysis project is exploring how Canadian
 - Export a reduced, analysis-ready Canada-wide fires shapefile + GeoJSON
 - Overlay fire perimeters with Avalanche Canada regions
 - Produce wildfire count summaries and a choropleth map by forecast region
+- Use Google Earth Engine + Sentinel-2 to compute NBR / dNBR time series
+- Quantify vegetation loss/recovery in singular AVCan regions
 
 #### Next Steps:
-- Use Google Earth Engine + Sentinel-2 to compute NBR / dNBR time series
-- Quantify vegetation loss/recovery in high-fire AVCan regions
+- Scale NBR / dNBR time terids and vegetation loss across all AvCan regions
 - Compare counts vs area burned, severity, and temporal trends
 - Identify high burn scars in Avalanche Canada regions
 
@@ -51,26 +52,32 @@ wildfire-risk-analysis/
 │   │
 │   └── processed/
 │       ├── Canada_fires/
-│       │   ├── Canada_fires_2014_2024.geojson
-│       │   └── Canada_fires_2014_2024.shp (+ sidecars)
+│       │   ├── Canada_fires_{min_year}_{max_year}.geojson
+│       │   └── Canada_fires_{min_year}_{max_year}.shp (+ sidecars)
 │       ├── NBAC_Summary_Stats_Cleaned.xls      # Summary statistics of NBAC records
 │       └── Shapefiles/
 │           └── NBAC Unzipped shapefiles (+ sidecars)  
 │
-├── scripts/
+├── src/
 │   ├── 01_download_nbac.py
 │   ├── 02_download_statscan_provinces.py
 │   ├── 03_clean_merge_nbac_shapefiles.py
-│   └── 05_avcan_fires_overlay.py
+│   ├── 05_avcan_fires_overlay.py
+│   └── severe_burns.py                                    # Working file
 │
 ├── notebooks/  
 │   ├── 04_summary_stats_cleaning.ipynb                    # To clean
 │   ├── 06_wildfire_avcan_analysis.IPYNB                   # Working notebook
-│   └── 07_engine_earth.ipynb                   # Next steps
+│   └── severe_burns.ipynb                                 # Next steps
 │
 ├── outputs/
 │   ├── figures/
 │   └── tables/
+│
+├── docs/                                                  # HTML plots + folium charts for sharing
+│
+├── .gitignore/   
+├── requirements.txt
 │
 └── README.md
 ```
@@ -92,8 +99,8 @@ pip install -r requirements.txt
 
 ## Key Outputs
 - Processed fires file
-- Canada_fires_2014_2024.geojson
-- Canada_fires_2014_2024.shp
+- Canada_fires_{min_year}_{max_year}.geojson
+- Canada_fires_{min_year}_{max_year}.shp
 
 - Fields retained for analysis:
     - gid 
