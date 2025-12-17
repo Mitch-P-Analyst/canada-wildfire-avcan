@@ -9,6 +9,8 @@ import geopandas as gpd
 from pathlib import Path
 import json
 import re
+import zipfile
+import shutil
 
 #--- Visualisations ---#
 import plotly.express as px
@@ -31,6 +33,28 @@ def extract_max_year(path):
     return max(map(int, years)) if years else -1
 
 
+
+def zip_shapefile_components(files, zip_path):
+    """
+    Create a ZIP archive containing all given shapefile component files.
+
+    Parameters
+    ----------
+    files : Iterable[Path]
+        Paths to the component files (.shp, .shx, .dbf, .prj, etc.).
+    zip_path : Path or str
+        Full path (including .zip filename) where the archive will be written.
+    """
+    zip_path = Path(zip_path)
+    zip_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+        for f in files:
+            f = Path(f)
+            # Store just the filename inside the archive
+            zf.write(f, arcname=f.name)
+
+
 #-- Files --#
 
 # Avalanche Canada polygons (GeoJSON)
@@ -40,7 +64,7 @@ avcan_shapes = gpd.read_file(avcan_path)
 print(f" Avalanche Canada Regions loaded. {avcan_shapes.crs}\n")
 
 # NBAC / BC fire perimeters 
-fires_dir = REPO_ROOT / "data/processed/Canada_fires"
+fires_dir = REPO_ROOT / "data/processed/national_canadian_fires"
 
 
 
@@ -106,8 +130,22 @@ regions_with_admin = gpd.sjoin(
 # 3) Restore original subregion polygons as the geometry
 regions_with_admin = regions_with_admin.set_geometry(regions_proj.geometry)
 
+print(" Cleaning region and subregion naming structure.")
+# Normalize region / subregion names: "South Coast Inland" -> "South_Coast_Inland",
+# "North-Coast" -> "North_Coast", etc.
+for col in ["region", "subregion"]:
+    regions_with_admin[col] = (
+        regions_with_admin[col]
+        .astype(str)                      # just in case
+        .str.strip()                      # remove leading/trailing spaces
+        .str.replace(r"[ \-]+", "_", regex=True)  # spaces or '-' -> '_'
+    )
+
+
 # 4) Make this your cleaned AvCan layer
 avcan_clean = regions_with_admin[["region", "subregion", "prov_terr", "geometry"]].copy()
+
+
 
 print("AvCan regions cleaned.")
 
@@ -170,8 +208,11 @@ AvCan_fires_year_max = int(fire_stats['year'].max())
 
 
 # Output folder
-out_dir = processed_dir / 'avalanche_canada/'
+out_dir = processed_dir / 'avalanche_canada_fires/'
+shapefiles_out_dir = processed_dir / 'avalanche_canada_fires/shapefiles/'
 out_dir.mkdir(parents=True, exist_ok=True)
+
+#---- AvCan Fires Export -----#
 
 # ---- GeoJSON export ---- #
 AvCan_fires_path_geojson = out_dir / f"AvCan_fires_{AvCan_fires_year_min}_{AvCan_fires_year_max}.geojson"
@@ -184,7 +225,7 @@ except Exception as e:
     raise RuntimeError(f'AvCan fires GeoJSON failed to export: {e}')
 
 # ---- Shapefile export ---- #
-AvCan_fires_path_shp = out_dir / f"AvCan_fires_{AvCan_fires_year_min}_{AvCan_fires_year_max}.shp"
+AvCan_fires_path_shp = shapefiles_out_dir / f"AvCan_fires_{AvCan_fires_year_min}_{AvCan_fires_year_max}.shp"
 print('Exporting AvCan fires Shapefile...')
 
 try:
@@ -192,6 +233,20 @@ try:
     print(f'Shapefile export successful: {AvCan_fires_path_shp}')
 except Exception as e:
     raise RuntimeError(f'AvCan fires Shapefile failed to export: {e}\n')
+
+# ---- Zipped Shapefile export ---- #
+
+# All components of the shapefile
+output_shp_files = list(shapefiles_out_dir.glob(f"AvCan_fires_{AvCan_fires_year_min}_{AvCan_fires_year_max}.*"))
+
+
+# Choose the zip filename (same stem as shapefile components)
+zip_name = shapefiles_out_dir / f"AvCan_fires_{AvCan_fires_year_min}_{AvCan_fires_year_max}.zip"
+
+print("Zipping AvCan shapefiles...")
+zip_shapefile_components(output_shp_files, zip_name)
+print(f"Created archive: {zip_name}")
+
 
 #--- AvCan Regions Export ---#
 

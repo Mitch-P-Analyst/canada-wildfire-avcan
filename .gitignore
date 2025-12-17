@@ -1,15 +1,21 @@
 .env
 keys/
 
+
+# TO address
+Stage_A_geemap.py
+earthengine_js_to_py.py
+
 # Processed big data outputs – do not version control
 data/processed/BC_fires/*
 data/processed/AvCan/*
-data/processed/shapefiles/*
-data/raw/zips/*
-data/processed/Canada_fires/*
-data/processed/avalanche_canada/*
+data/processed/NBAC/shapefiles/*
+data/raw/NBAC/*
+data/processed/National_Canadian_fires/*
+data/processed/Avalanche_Canada_fires/*
 data/processed/subregion_fires/*
 data/processed/severe_burns/*
+data/processed/stage_A/*
 # or, more generally for large geodata:
 # *.shp
 # *.shx

@@ -8,8 +8,8 @@ import requests
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
-RAW_DIR = REPO_ROOT / "data" / "raw"
-RAW_ZIPS_DIR = RAW_DIR / "zips"
+RAW_DIR = REPO_ROOT / "data" / "raw" / "NBAC"
+RAW_ZIPS_DIR = RAW_DIR / "NBAC" / "zips"
 
 RAW_DIR.mkdir(parents=True, exist_ok=True)
 RAW_ZIPS_DIR.mkdir(parents=True, exist_ok=True)
@@ -21,9 +21,9 @@ print(f"Directory Download Raw Files: {RAW_DIR}\n")
 
 BASE_URL = "https://cwfis.cfs.nrcan.gc.ca/downloads/nbac/"
 
-print(f'Source for Canadian Nationaal Burn Area Composites (NBAC): \n {BASE_URL}')
+print(f'Source for Canadian National Burn Area Composites (NBAC): \n {BASE_URL}')
 
-YEARS = range(2009, 2025)                       # Adjust to chosen years
+YEARS = range(1990, 2025)                       # Adjust to chosen years
 print(f'Selected years: {YEARS}\n')
 
 

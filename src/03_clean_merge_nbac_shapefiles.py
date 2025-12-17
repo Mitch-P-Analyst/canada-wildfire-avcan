@@ -63,7 +63,7 @@ print('Opening all shapefiles...')
 print(f'Appending into singular dictionary...')
 all_gdfs_dct = {}   # Store in dictionary
 
-for folder in (processed_dir / "shapefiles").iterdir(): # shapefiles directory
+for folder in (processed_dir / "NBAC/Shapefiles").iterdir(): # shapefiles directory
     if folder.is_dir():
         shp = next(folder.glob("*.shp"), None)          # specific shapefiles
         if shp:
@@ -219,7 +219,7 @@ print(f'\nCleaning complete. \n')
 #--- Canada Fires Export ---#
 print(f'Beginning Export procedure.')
 # Output folder
-out_dir = processed_dir / "Canada_fires"
+out_dir = processed_dir / "national_canadian_fires"
 out_dir.mkdir(parents=True, exist_ok=True)
 
 # ---- GeoJSON export ----
