@@ -1,0 +1,15 @@
+map:
+  tiles: "OpenTopoMap"
+  default_zoom: 6
+  fallback_center: [54.5, -125.0]
+
+regions:
+  Sea_To_Sky:
+    display_name: "Sea to Sky"
+    center: [50.3, -122.7]
+    zoom: 8
+
+  South_Coast_Inland:
+    display_name: "South Coast Inland"
+    center: [50.7, -122.3]
+    zoom: 8

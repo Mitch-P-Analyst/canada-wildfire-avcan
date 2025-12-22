@@ -42,31 +42,50 @@ The current status of this geospatial analysis project is exploring how Canadian
 ``` 
 wildfire-risk-analysis/
 │
+├── avcan_map_app/
+│   ├── app.py                          # Overview / landing page (Stage status + how to use)
+│   ├── pages/
+│   │   ├── 01_Explorer.py              # Map + filters + layer toggles + metric cards
+│   │   ├── 02_Method.py                # Stage A details + Stage B plan + assumptions
+│   │   ├── 03_Data.py                  # Data dictionary + provenance + CRS + update cadence
+│   │   └── 04_Roadmap.py               # Changelog + backlog + known issues
+│   ├── components/
+│   │   ├── sidebar.py                  # region/year/stage controls (single source of truth)
+│   │   ├── metrics.py                  # summary stats cards
+│   │   ├── legends.py                  # map legend blocks
+│   │   └── text.py                     # standardized copy for Stage A/B descriptions
+│   └── config/
+│       ├── stage_a.yaml                # thresholds + reference fire metadata
+│       └── regions.yaml                # optional: map centers/zoom defaults per region
+│
 ├── data/
 │   ├── external/
-│   │   ├── nbac/                               # Raw NBAC downloads by year
 │   │   ├── avalanche_canada/
 │   │   │   └── canadian_subregions.geojson     # AVCan forecast regions
 │   │   └── stats_canada/
 │   │       └── boundaries/                     # Provincial/territory polygons
-│   │
-│   └── processed/
-│       ├── Canada_fires/
-│       │   ├── Canada_fires_{min_year}_{max_year}.geojson
-│       │   └── Canada_fires_{min_year}_{max_year}.shp (+ sidecars)
-│       ├── NBAC_Summary_Stats_Cleaned.xls      # Summary statistics of NBAC records
-│       └── Shapefiles/
-│           └── NBAC Unzipped shapefiles (+ sidecars)  
+│   ├── processed/
+│   │   ├── analysis/                               
+│   │   │   ├── avalanche_canada_fires/
+│   │   │   ├── national_canadian_fires/
+│   │   │   ├── NBAC/
+│   │   │   ├── severe_burns/
+│   │   │   ├── stage_A/
+│   │   │   ├── subregions_fires/
+│   │   │   └── Canada_fires/
+│   │   ├── app/
+│   │   └── share/
+│   └── raw/
+│       └── NBAC/                               # Raw NBAC downloads by year
 │
-├── src/
+├── scripts/
 │   ├── 01_download_nbac.py
 │   ├── 02_download_statscan_provinces.py
-│   ├── 03_clean_merge_nbac_shapefiles.py
-│   ├── 05_avcan_fires_overlay.py
-│   └── severe_burns.py                                    # Working file
+│   ├── 03_clean_merge_nbac.py
+│   ├── 04_avcan_fires_overlay.py
+│   └── 05_build_app_layers.py                             
 │
-├── notebooks/  
-│   ├── 04_summary_stats_cleaning.ipynb                    # To clean
+├── notebooks/
 │   ├── 06_wildfire_avcan_analysis.IPYNB                   # Working notebook
 │   └── severe_burns.ipynb                                 # Next steps
 │

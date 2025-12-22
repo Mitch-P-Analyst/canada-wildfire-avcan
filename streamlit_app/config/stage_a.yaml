@@ -1,0 +1,20 @@
+stage:
+  id: "stage_a"
+  name: "Stage A"
+  description_short: "Severity patches derived from dNBR and minimum patch size."
+
+calibration:
+  reference_region: "South_Coast_Inland"
+  reference_gid: "1990_106"
+  note: "Thresholds were calibrated to match observed patch scale from first-hand reports."
+
+thresholds:
+  dnbr_min: 0.2
+  min_patch_area_ha: 10
+
+fields:
+  year: "Year"
+  region: "Region"
+  subregion: "Subregion"
+  patch_area_ha: "Patch Area (ha)"
+  fire_area_ha: "Total Adjusted Area (ha)"

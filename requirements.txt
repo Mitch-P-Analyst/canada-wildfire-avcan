@@ -4,3 +4,4 @@ folium
 streamlit-folium
 shapely
 pyproj
+pyarrow
