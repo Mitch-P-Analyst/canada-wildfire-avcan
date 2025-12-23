@@ -55,7 +55,8 @@ def mapp_application() -> None:
     st.title("AvCan Wildfire Severity Explorer")
     st.caption("Interactive map of wildfire perimeters and Stage A burn-severity patches within Avalanche Canada regions.")
 
-    # --- Load layers (cached) ---
+    # Load Cached Layers 
+    # =================================================================
     fires_path   = app_data_dir / "Fires.parquet"
     patches_path = app_data_dir / "Stage_A_Severity_Patches.parquet"
     regions_path = app_data_dir / "Regions.parquet"
@@ -67,28 +68,32 @@ def mapp_application() -> None:
         regions_path.stat().st_mtime,
     )
 
-    # --- Region list (prefer regions layer) ---
+    # Filters
+    # =================================================================
+
+    # ========== Region =====================================
     regions_sel = sorted(regions["Region"].dropna().unique().tolist()) if "Region" in regions.columns else []
     if not regions_sel:
         regions_sel = sorted(set(fires["Region"].dropna().unique()).union(set(patches["Region"].dropna().unique())))
 
-    # Global year bounds (avoids region-selection circularity)
+    # ========== Year Range =====================================
     y_min, y_max = _safe_year_limits(fires, patches)
 
-    # --- Sidebar controls ---
+    # ========== Sidebar Controls =====================================    
     ui = sidebar_controls(regions_sel, y_min, y_max)
     region = ui["region"]
     y0, y1 = ui["year_range"]
 
-    # --- Filter to region + year ---
+    # ========== Apply Filters =====================================
     fires_r = fires[fires["Region"] == region] if "Region" in fires.columns else fires.iloc[0:0]
     patches_r = patches[patches["Region"] == region] if "Region" in patches.columns else patches.iloc[0:0]
     region_f = regions[regions["Region"] == region] if "Region" in regions.columns else regions.iloc[0:0]
 
     fires_f = fires_r[pd.to_numeric(fires_r["Year"], errors="coerce").between(y0, y1, inclusive="both")].copy() if not fires_r.empty else fires_r
     patches_f = patches_r[pd.to_numeric(patches_r["Year"], errors="coerce").between(y0, y1, inclusive="both")].copy() if not patches_r.empty else patches_r
-
-    # --- Compute region bounds/center for map ---
+    
+    # Bounds 
+    # =================================================================
     if region_f is not None and not region_f.empty:
         minx, miny, maxx, maxy = region_f.total_bounds
         center = ((miny + maxy) / 2.0, (minx + maxx) / 2.0)
@@ -97,26 +102,15 @@ def mapp_application() -> None:
         center = (54.5, -125.0)
         bounds = None
 
-    # --- View state persistence ---
-    if "prev_region" not in st.session_state:
-        st.session_state.prev_region = None
-    if "map_center" not in st.session_state:
-        st.session_state.map_center = None
-    if "map_zoom" not in st.session_state:
-        st.session_state.map_zoom = 11
-
+    st.session_state.setdefault("prev_region", None)
     region_changed = (st.session_state.prev_region != region)
     st.session_state.prev_region = region
 
-    start_location = st.session_state.map_center if (st.session_state.map_center and not region_changed) else center
-    start_zoom = st.session_state.map_zoom if (st.session_state.map_center and not region_changed) else 11
-
-   
-
-    # --- Build the folium map (component) ---
+    # Map Building
+    # =================================================================    
     m = build_folium_map(
-        start_location=start_location,
-        start_zoom=start_zoom,
+        start_location=center,
+        start_zoom=11,
         region_gdf=region_f,
         fires_gdf=fires_f,
         patches_gdf=patches_f,
@@ -126,21 +120,20 @@ def mapp_application() -> None:
         color_fires=ui["color_fires"],
         color_patches=ui["color_patches"],
         bounds=bounds,
-        fit_bounds=(bounds is not None and (region_changed or st.session_state.map_center is None)),
+        fit_bounds=(bounds is not None and region_changed),
     )
 
-    out = st_folium(m, key="map", width=None, height=700)
+    # ========== Apply Map =====================================
+    st_folium(
+        m,
+        key="map",
+        height=700,
+        width=None,
+        returned_objects=[],   # critical if your streamlit-folium version supports it
+    )
 
-    # Persist latest pan/zoom
-    if out:
-        c = out.get("center")
-        z = out.get("zoom")
-        if isinstance(c, dict) and "lat" in c and "lng" in c:
-            st.session_state.map_center = [c["lat"], c["lng"]]
-        if isinstance(z, (int, float)):
-            st.session_state.map_zoom = int(z)
-
-    # inside your stats column:
+    # Summary Stats 
+    # =================================================================
     render_metrics_column(
         region=region,
         fires_f=fires_f,
@@ -150,4 +143,7 @@ def mapp_application() -> None:
     )
 
 
+# ===================================================================
+# Apply Mapp Application Function
+# ===================================================================
 mapp_application()

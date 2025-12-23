@@ -55,6 +55,23 @@ def render_metrics_column(
 
         st.metric("Hectares", f"{fires_ha:,.0f}")
         st.divider()
+        # --- Fire causes breakdown (bullet list) ---
+        st.markdown("**Fire Causes:**")
+
+        if show_fires and fires_f is not None and (not fires_f.empty) and ("Cause" in fires_f.columns):
+            vc = (
+                fires_f["Cause"]
+                .fillna("Unknown")
+                .astype(str)
+                .str.strip()
+                .replace({"": "Unknown"})
+                .value_counts(dropna=False)
+            )
+
+            bullets = "\n".join([f"- {cause}: {count:,}" for cause, count in vc.items()])
+            st.markdown(bullets)
+        else:
+            st.markdown("- N/A")
 
     with col_A:
         # Severity Patches
@@ -78,9 +95,9 @@ def render_metrics_column(
             parts.append(f"min patch area ≥ {min_patch_area_ha:g} ha")
 
         if parts:
-            suffix = f" (calibrated on {ref_gid})" if ref_gid else ""
+            suffix = f" (calibrated on Fire GID {ref_gid})" if ref_gid else ""
             bullets = "\n".join([f"- {p}" for p in parts])
-            st.caption(f"**Thresholds{suffix}:**\n{bullets}")
+            st.markdown(f"**Thresholds{suffix}:**\n{bullets}")
 
     with col_B:
         # Regrowth Patches
@@ -89,4 +106,4 @@ def render_metrics_column(
 
         st.metric("Hectares", 0)
         st.divider()
-        st.caption("**Planned.**")
+        st.markdown("**Planned.**")

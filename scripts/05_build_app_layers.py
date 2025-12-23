@@ -132,6 +132,10 @@ RENAME_MAP = {
     # AvCan Fires
     'tot_adj_ha':'Total Adjusted Area (ha)',
     'gid':'Unique Fire ID (gid)',
+    'fireid':'FireID',
+    'cause':'Cause',
+    'subreg_ha':'Subregion Area (ha)',
+    'prov_terr': 'Province/Territory',
 
     # Stage A Burns
     'slp_mn_pct' : 'Slope Mean Percentage',
@@ -232,10 +236,10 @@ m.save(REPO_ROOT / f"docs/Stage_A_Zone_Severity.html")
 
 sel_regions = stage_A_polys_ll['Region'].unique()
 
-print(f'\nBelow is the number of polygons for each layer for the assessed AvCan regions: {sel_regions}')
+print(f"\nBelow is the number of polygons for each layer for the assessed AvCan regions: {sel_regions}")
 
-print(f' Number of Fires across years {avcan_fires_sel_ll['Year'].min()} - {avcan_fires_sel_ll['Year'].max()}: {avcan_fires_sel_ll.shape[0]} ')
-print(f' Number of Stage A Severity Patches across years {stage_A_polys_ll['Year'].min()} - {stage_A_polys_ll['Year'].max()}: {stage_A_polys_ll.shape[0]}')
+print(f" Number of Fires across years {avcan_fires_sel_ll['Year'].min()} - {avcan_fires_sel_ll['Year'].max()}: {avcan_fires_sel_ll.shape[0]} ")
+print(f" Number of Stage A Severity Patches across years {stage_A_polys_ll['Year'].min()} - {stage_A_polys_ll['Year'].max()}: {stage_A_polys_ll.shape[0]}")
 
 
 # ===================================================================

@@ -29,7 +29,7 @@ st.set_page_config(
 
 
 # -------------------------------------------------------------------
-# Landing / Overview page (keep lightweight)
+# Landing / Overview page
 # -------------------------------------------------------------------
 st.title("Avalanche Canada Wildfire Explorer")
 
@@ -39,8 +39,8 @@ st.write(
     "and the identification of candidate burn-severity patches relevant to winter backcountry recreation.")
     
 st.write(
-    "Identifcaiton of fires within recreational backcountry areas is an opportunity to raise wildfire awareness to users of local environments, "
-    "providing insights to natural events and human involvement. Simultanously opporunties to explore landscapes for adventure activities, promoting outdoor recreation."
+    "Identifcation of fires within recreational backcountry areas is an opportunity to raise wildfire awareness to users of local environments, "
+    "providing insights to natural events and human involvement. Simultanously provide opportunties to explore landscapes for adventure activities, promoting outdoor recreation."
 
 
 )
