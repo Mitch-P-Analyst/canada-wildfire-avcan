@@ -13,6 +13,14 @@ from streamlit_folium import st_folium
 # ===================================================================
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 
+# -------------------------------------------------------------------
+# Page config
+# -------------------------------------------------------------------
+st.set_page_config(
+    page_title="AvCan Wildfire Explorer",
+    page_icon="🔥",
+    layout="wide"
+)
 
 # ===================================================================
 # Components
@@ -103,47 +111,43 @@ def mapp_application() -> None:
     start_location = st.session_state.map_center if (st.session_state.map_center and not region_changed) else center
     start_zoom = st.session_state.map_zoom if (st.session_state.map_center and not region_changed) else 11
 
-    # Layout: Map + Stats
-    col_map, col_stats = st.columns([2.2, 0.8], gap="medium")
-
-
-    with col_stats:
-        # inside your stats column:
-        render_metrics_column(
-            region=region,
-            fires_f=fires_f,
-            patches_f=patches_f,
-            show_fires=ui["show_fires"],
-            show_patches=ui["show_patches"],
-        )
+   
 
     # --- Build the folium map (component) ---
-    with col_map:
-        m = build_folium_map(
-            start_location=start_location,
-            start_zoom=start_zoom,
-            region_gdf=region_f,
-            fires_gdf=fires_f,
-            patches_gdf=patches_f,
-            show_fires=ui["show_fires"],
-            show_patches=ui["show_patches"],
-            show_region=ui["show_region"],
-            color_fires=ui["color_fires"],
-            color_patches=ui["color_patches"],
-            bounds=bounds,
-            fit_bounds=(bounds is not None and (region_changed or st.session_state.map_center is None)),
-        )
+    m = build_folium_map(
+        start_location=start_location,
+        start_zoom=start_zoom,
+        region_gdf=region_f,
+        fires_gdf=fires_f,
+        patches_gdf=patches_f,
+        show_fires=ui["show_fires"],
+        show_patches=ui["show_patches"],
+        show_region=ui["show_region"],
+        color_fires=ui["color_fires"],
+        color_patches=ui["color_patches"],
+        bounds=bounds,
+        fit_bounds=(bounds is not None and (region_changed or st.session_state.map_center is None)),
+    )
 
-        out = st_folium(m, key="map", width=None, height=700)
+    out = st_folium(m, key="map", width=None, height=700)
 
-        # Persist latest pan/zoom
-        if out:
-            c = out.get("center")
-            z = out.get("zoom")
-            if isinstance(c, dict) and "lat" in c and "lng" in c:
-                st.session_state.map_center = [c["lat"], c["lng"]]
-            if isinstance(z, (int, float)):
-                st.session_state.map_zoom = int(z)
+    # Persist latest pan/zoom
+    if out:
+        c = out.get("center")
+        z = out.get("zoom")
+        if isinstance(c, dict) and "lat" in c and "lng" in c:
+            st.session_state.map_center = [c["lat"], c["lng"]]
+        if isinstance(z, (int, float)):
+            st.session_state.map_zoom = int(z)
+
+    # inside your stats column:
+    render_metrics_column(
+        region=region,
+        fires_f=fires_f,
+        patches_f=patches_f,
+        show_fires=ui["show_fires"],
+        show_patches=ui["show_patches"],
+    )
 
 
 mapp_application()

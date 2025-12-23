@@ -18,3 +18,7 @@ fields:
   subregion: "Subregion"
   patch_area_ha: "Patch Area (ha)"
   fire_area_ha: "Total Adjusted Area (ha)"
+  id: "Unique Fire ID (gid)"
+  direction: "Majority Cardinal Direction"
+  mean_elevation: "Mean Elevation (m)"
+  slope: "Mean Slope Degree"

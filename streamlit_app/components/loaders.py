@@ -4,14 +4,37 @@
 import geopandas as gpd
 import streamlit as st
 from pathlib import Path
+import yaml  
+from typing import Any, Dict
 
 # ===================================================================
 # Directories
 # ===================================================================
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+APP_DIR = Path(__file__).resolve().parents[1]   # .../streamlit_app
 
 app_data_dir = REPO_ROOT / "data" / "processed" / "app"
 app_data_dir.mkdir(parents=True, exist_ok=True)
+
+CONFIG_DIR = APP_DIR / "config"
+
+# ===================================================================
+# YAML Configs
+# ===================================================================
+@st.cache_data(show_spinner=False)
+def load_yaml_config(filename: str) -> Dict[str, Any]:
+    """Load a YAML config from streamlit_app/config/ with Streamlit caching."""
+    path = CONFIG_DIR / filename
+    if not path.exists():
+        return {}
+
+    with path.open("r", encoding="utf-8") as f:
+        data = yaml.safe_load(f) or {}
+
+    if not isinstance(data, dict):
+        return {}
+    return data
+
 
 # ===================================================================
 # Helpers

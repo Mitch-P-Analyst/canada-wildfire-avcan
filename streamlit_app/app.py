@@ -35,8 +35,14 @@ st.title("Avalanche Canada Wildfire Explorer")
 
 st.write(
     "This Streamlit application visualizes wildfire perimeters recorded in the National Burn Area Composite (NBAC) "
-    "within Avalanche Canada (AvCan) forecasting regions. It is designed to support exploration of historical fires "
-    "and the identification of candidate burn-severity patches relevant to winter backcountry recreation."
+    "within Avalanche Canada (AvCan) forecasting regions. It is designed to support exploration of historical fires"
+    "and the identification of candidate burn-severity patches relevant to winter backcountry recreation.")
+    
+st.write(
+    "Identifcaiton of fires within recreational backcountry areas is an opportunity to raise wildfire awareness to users of local environments, "
+    "providing insights to natural events and human involvement. Simultanously opporunties to explore landscapes for adventure activities, promoting outdoor recreation."
+
+
 )
 
 st.divider()
@@ -48,8 +54,8 @@ with col1:
     st.markdown(
         """
         **Stage A (available now):**  
-        Burn-severity *patches* derived using a calibrated severity and minimum patch-size logic.  
-        Calibration is anchored to observed on-the-ground patch scale and severity from the **South Coast Inland 1990–106** case.
+        Burn-severity *patches* derived using a calibrated fire severity and minimum patch-size logic.  
+        Calibration is anchored to observed on-the-ground patch scale and severity from the **South Coast Inland fire ID 1990–106**.
 
         **Stage B (planned):**  
         Apply **NVRI vegetation regrowth** since fire date to present to remove regenerated areas and isolate more durable
