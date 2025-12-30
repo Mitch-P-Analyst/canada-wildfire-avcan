@@ -61,7 +61,7 @@ with col1:
         Apply **NVRI vegetation regrowth** since fire date to present to remove regenerated areas and isolate more durable
         candidate “burn zones” for winter recreation.
         
-        Identify forest regrowth with applicable Vegetation Resource Inventories, such as Canopy openness, Height, Age, Species composition and more.
+        Identify forest regrowth with applicable Vegetation Resource Inventories (VRI), such as Canopy openness, Height, Age, Species composition and more.
         """
     )
 
@@ -83,7 +83,7 @@ st.markdown(
     """
     - **NBAC (National Burn Area Composite):** wildfire perimeter dataset  
     - **Avalanche Canada regions:** forecasting region boundaries  
-    - **Statistics Canada boundaries:** provincial/territorial context (where used)
+    - **Statistics Canada boundaries:** provincial/territorial context
 
     This application is informational and not intended for safety-critical decision-making.
     """
