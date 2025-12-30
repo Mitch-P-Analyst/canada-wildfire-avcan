@@ -21,7 +21,7 @@ CONFIG_DIR = APP_DIR / "config"
 # ===================================================================
 # YAML Configs
 # ===================================================================
-@st.cache_data(show_spinner=False)
+# @st.cache_data(show_spinner=False)
 def load_yaml_config(filename: str) -> Dict[str, Any]:
     """Load a YAML config from streamlit_app/config/ with Streamlit caching."""
     path = CONFIG_DIR / filename
@@ -34,6 +34,9 @@ def load_yaml_config(filename: str) -> Dict[str, Any]:
     if not isinstance(data, dict):
         return {}
     return data
+
+def fmt(v, default="TBD"):
+    return default if v in (None, "", "None") else v
 
 
 # ===================================================================
@@ -66,3 +69,4 @@ def load_app_layers(app_data_dir: Path, fires_mtime: float, patches_mtime: float
     regions = _ensure_wgs84(regions, "Regions")
 
     return fires, patches, regions
+

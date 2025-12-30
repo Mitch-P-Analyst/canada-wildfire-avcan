@@ -6,11 +6,15 @@ stage:
 calibration:
   reference_region: "South_Coast_Inland"
   reference_gid: "1990_106"
-  note: "Thresholds were calibrated to match observed patch scale from first-hand reports."
+  time_start: "June_1st"    
+  time_end: "October_31st"  
+  note: "Thresholds were calibrated to match observed conditions from first-hand reports of a known forest fire."
 
 thresholds:
   dnbr_min: 0.2
   min_patch_area_ha: 10
+  dnbr_value: "moderate"    
+  connectivity: "8-connectivity"
 
 fields:
   year: "Year"
