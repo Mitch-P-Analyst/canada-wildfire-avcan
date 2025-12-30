@@ -25,10 +25,10 @@ st.set_page_config(
 # ===================================================================
 # Components
 # ===================================================================
-from components.loaders import load_app_layers, app_data_dir
-from components.sidebar import sidebar_controls
-from components.folium_map import build_folium_map
-from components.metrics import render_metrics_column
+from streamlit_app.components.loaders import load_app_layers, app_data_dir
+from streamlit_app.components.sidebar import sidebar_controls
+from streamlit_app.components.folium_map import build_folium_map
+from streamlit_app.components.metrics import render_metrics_column
 
 # ===================================================================
 # Helper Functions
