@@ -280,6 +280,8 @@ Canfire_4326 = Canfires_simple.to_crs(epsg=4326)
 print(f' Reprojected CRS for GeoJSON export: {Canfire_4326.crs}')
 
 print(f'\nCleaning complete. \n')
+
+
 #--- Canada Fires Export ---#
 print(f'Beginning Export procedure.')
 # Output folder

@@ -101,7 +101,7 @@ def render_metrics_column(
 
     with col_B:
         # Regrowth Patches
-        st.markdown("#### Stage B: Regrowth Patches")
+        st.markdown("#### Stage B: Vegetation Patches")
         st.metric("Count", 0)
 
         st.metric("Hectares", 0)

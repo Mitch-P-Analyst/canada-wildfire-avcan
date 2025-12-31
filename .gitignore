@@ -9,6 +9,7 @@ earthengine_js_to_py.py
 # All intermedary / analysing data 
 data/raw/NBAC/*
 data/processed/analysis/*
+data/external/bc_vri/*
 # or, more generally for large geodata:
 # *.shp
 # *.shx
