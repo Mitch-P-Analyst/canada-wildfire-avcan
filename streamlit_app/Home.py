@@ -32,7 +32,7 @@ st.set_page_config(
 # Landing / Overview page
 # -------------------------------------------------------------------
 st.title("Avalanche Canada Wildfire Explorer")
-st.info("DEBUG: Home page loaded — build 2026-01-02")
+
 
 st.write(
     "This Streamlit application visualizes wildfire perimeters recorded in the National Burn Area Composite (NBAC) "

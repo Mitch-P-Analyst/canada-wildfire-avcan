@@ -73,15 +73,17 @@ def mapp_application() -> None:
     # Instructions 
     # =================================================================
     st.markdown("## Instructions")
-    st.markdown(f"""Below is a topographical map exploring wildfires within Avalanche Canada forecast regions.
-    This map aims to illustrate not only the wildfires within recreational backcountry areas, but communicate identifed areas that meet conditions for favourable **winter recreation** (skiing, snowmobiling, etc) as a result of wildfire impact.
-    
-    **Controls**
-                
-    The user-interface on the left-portion of this application includes filters and customise legends to observed wildfires. Modify layer appearances and visibility to navigate the map.
-                
-                """)
-    
+    st.markdown("""
+    This interactive topographic map explores wildfire perimeters and **Stage A** burn-severity patches within Avalanche Canada forecast regions.
+
+    **Stage A patches** are post-fire areas identified by this project’s criteria as potentially relevant for **winter recreation** analysis (e.g., skiing, snowmobiling). They are intended as an exploratory layer to help highlight terrain for recreational use, not as an official Avalanche Canada product.
+
+    ### Controls
+    Use the left sidebar to:
+    - Select a **Region** and **Year range**
+    - Toggle layers (fire perimeters, Stage A patches, region boundary)
+    - Adjust layer visibility and styling to compare patterns on the map
+    """)
     st.divider()
 
     # Filters
@@ -122,6 +124,16 @@ def mapp_application() -> None:
     region_changed = (st.session_state.prev_region != region)
     st.session_state.prev_region = region
 
+    # Summary Stats 
+    # =================================================================
+    render_metrics_column(
+        region=region,
+        fires_f=fires_f,
+        patches_f=patches_f,
+        show_fires=ui["show_fires"],
+        show_patches=ui["show_patches"],
+    )
+
     # Map Building
     # =================================================================    
     m = build_folium_map(
@@ -148,15 +160,6 @@ def mapp_application() -> None:
         returned_objects=[],   # critical if your streamlit-folium version supports it
     )
 
-    # Summary Stats 
-    # =================================================================
-    render_metrics_column(
-        region=region,
-        fires_f=fires_f,
-        patches_f=patches_f,
-        show_fires=ui["show_fires"],
-        show_patches=ui["show_patches"],
-    )
 
 
 # ===================================================================
