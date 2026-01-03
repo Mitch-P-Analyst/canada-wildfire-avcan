@@ -55,7 +55,7 @@ def _safe_year_limits(fires_df, patches_df):
 def mapp_application() -> None:
     st.title("AvCan Wildfire Severity Explorer")
     st.caption("Interactive map of wildfire perimeters and Stage A burn-severity patches within Avalanche Canada regions.")
-
+    st.divider()
     # Load Cached Layers 
     # =================================================================
     fires_path   = app_data_dir / "Fires.parquet"
@@ -68,6 +68,17 @@ def mapp_application() -> None:
         patches_path.stat().st_mtime,
         regions_path.stat().st_mtime,
     )
+    
+    # Instructions 
+    # =================================================================
+    st.markdown("## Instructions")
+    st.markdown("Below is a topographical map exploring wildfires within Avalanche Canada forecast regions. " \
+    "This map aims to illustrate not only the wildfires within recreational backcountry areas, but communicate identifed areas that meet conditions for favourable **winter recreation (skiing, snowmobiling, etc) as a result of wildfire impact." \
+    "" \
+    "**Controls**" \
+    "The user-interface on the left-portion of this application includes filters and customise legends to observed wildfires. Modify layer appearances and visibility to navigate the map.")
+    
+
 
     # Filters
     # =================================================================
