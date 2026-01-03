@@ -78,7 +78,7 @@ def mapp_application() -> None:
     "**Controls**" \
     "The user-interface on the left-portion of this application includes filters and customise legends to observed wildfires. Modify layer appearances and visibility to navigate the map.")
     
-
+    st.divider()
 
     # Filters
     # =================================================================
