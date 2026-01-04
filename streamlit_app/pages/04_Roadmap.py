@@ -147,7 +147,8 @@ def roadmap_page() -> None:
 
     with st.expander("Potential Plans (Future)", expanded=False):
         future_list = [
-            "Add average monthly snowpack depth summaries for Stage A + Stage B patches (context for terrain/snow response post-fire)."
+            "Add average monthly snowpack depth summaries for Stage A + Stage B patches (context for terrain/snow response post-fire).",
+            "Add a **Forest Service Roads** map layer to provide insight to accessability of identified Stage A + B patches."
         ]
         _bullet_list(future_list)
 

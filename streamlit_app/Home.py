@@ -37,7 +37,7 @@ st.title("Avalanche Canada Wildfire Explorer")
 st.write(
     "This Streamlit application visualizes wildfire perimeters recorded in the National Burn Area Composite (NBAC) "
     "within Avalanche Canada (AvCan) forecasting regions. It is designed to support exploration of historical fires "
-    "and the identification of candidate burn-severity patches relevant to winter backcountry recreation.")
+    "and the identification of burn-severity patches applicable to winter backcountry recreation.")
     
 st.write(
     "Identifcation of fires within recreational backcountry areas is an opportunity to raise wildfire awareness to users of local environments, "
@@ -51,7 +51,7 @@ st.divider()
 col1, col2 = st.columns([1, 1], gap="large")
 
 with col1:
-    st.subheader("Current pipeline status")
+    st.subheader("Current Pipeline Status")
     st.markdown(
         """
         **Stage A (available now):**  
@@ -62,12 +62,12 @@ with col1:
         Apply **NVRI vegetation regrowth** since fire date to present to remove regenerated areas and isolate more durable
         candidate “burn zones” for winter recreation.
         
-        Identify forest regrowth with applicable Vegetation Resource Inventories (VRI), such as Canopy openness, Height, Age, Species composition and more.
+        Identify forest regrowth with applicable **Vegetation Resource Inventories (VRI)**, such as Canopy openness, Height, Age, Species composition and more.
         """
     )
 
 with col2:
-    st.subheader("How to use")
+    st.subheader("How To Use")
     st.markdown(
         """
         - Open the **Explorer** page (left navigation) to view the interactive map.  
@@ -79,7 +79,7 @@ with col2:
 
 st.divider()
 
-st.subheader("Data sources")
+st.subheader("Data Sources")
 st.markdown(
     """
     - **NBAC (National Burn Area Composite):** wildfire perimeter dataset  

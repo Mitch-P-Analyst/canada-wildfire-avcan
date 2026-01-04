@@ -58,6 +58,7 @@ def method_page() -> None:
     min_patch_area_ha = thresholds.get("min_patch_area_ha") # e.g., 10
     dnbr_value = thresholds.get("dnbr_value")
     pixel_conn = thresholds.get("connectivity")
+    scale_value = thresholds.get("scale")
 
     # ========== Calibrations =====================================
     ref_region = calibration.get("reference_region").replace("_", " ")
@@ -103,10 +104,13 @@ def method_page() -> None:
     - Pixel connectivity: **{fmt(pixel_conn)}**
 
     **Context**  
-    Stage A applies the calibrated dNBR and minimum patch area logic to identify comparable patches across AvCan fires.  
-    A **{fmt(dnbr_value)}** dNBR severity class was used as the calibration reference (fire **{fmt(ref_gid)}**).  
+    dNBR (differenced Normalized Burn Ratio) is derived from the Normalized Burn Ratio index, which is computed from Landsat Near-Infrared (NIR) and Shortwave Infrared (SWIR) wavelength bands. Because wildfire typically reduces healthy vegetation (lower NIR reflectance) and increases exposed soil/char and dryness (higher SWIR reflectance), NBR and dNBR are commonly used to map burn impacts and relative burn severity in forested landscapes. Stage A applies a calibrated dNBR threshold (referenced to {fmt(ref_region)} fire ID {fmt(ref_gid)}) together with a minimum patch-size rule to identify comparable patches across AvCan fires.
+    
+    Stage A identifies Severity Patches by thresholding the dNBR layer at ≥ {fmt(dnbr_min)} to create a binary mask, then grouping masked pixels into connected areas using {fmt(pixel_conn)} (cardinal and diagonal adjacency). Patch size is approximated using connected pixel count at a {fmt(scale_value)} working scale, converting the 10 ha minimum area threshold to a minimum area size (≈ 49–50 connected pixels). Areas meeting or exceeding this minimum size are retained as the final **Severity Patches** mask and then converted to polygons within the fire perimeter geometry.
 
-    dNBR is calculated using pre- and post-fire seasonal composites spanning **{fmt(time_start)} – {fmt(time_end)}** (one annum before and after each fire year), using **Landsat 5/7/8/9** imagery.
+    This dNBR is calculated uses pre- and post-fire seasonal composites spanning **{fmt(time_start)} – {fmt(time_end)}** (one year before and after each fire year), from **Landsat 5/7/8/9** imagery.
+
+    A coarser {fmt(scale_value)} processing scale is used during patch identifcation to reduce computational load and produce fewer, larger candidate patches.
     """)
 
     st.divider()

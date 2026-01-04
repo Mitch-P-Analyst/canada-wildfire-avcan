@@ -15,6 +15,7 @@ thresholds:
   min_patch_area_ha: 10
   dnbr_value: "moderate"    
   connectivity: "8-connectivity"
+  scale: "45m x 45m"
 
 fields:
   year: "Year"

@@ -76,7 +76,7 @@ def mapp_application() -> None:
     st.markdown("""
     This interactive topographic map explores wildfire perimeters and **Stage A** burn-severity patches within Avalanche Canada forecast regions.
 
-    **Stage A patches** are post-fire areas identified by this project’s criteria as potentially relevant for **winter recreation** analysis (e.g., skiing, snowmobiling). They are intended as an exploratory layer to help highlight terrain for recreational use, not as an official Avalanche Canada product.
+    **Stage A patches** are post-fire areas identified by this project’s criteria as potentially relevant for **winter recreation** (e.g., skiing, snowmobiling). They are intended as an exploratory layer to help highlight terrain for recreational use, not as an official Avalanche Canada product, simultanously communicate wildfire presence in our local backcountry environments.
 
     ### Controls
     Use the left sidebar to:

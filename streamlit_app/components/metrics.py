@@ -41,7 +41,7 @@ def render_metrics_column(
     # -----------------------------
     # Header
     # -----------------------------
-    st.markdown("## Region statistics")
+    st.markdown("## Region Statistics")
     region_s = (region or "").replace("_", " ").title()
     st.caption(region_s)
 
