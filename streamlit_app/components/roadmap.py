@@ -10,15 +10,6 @@ import streamlit as st
 from components.loaders import load_app_layers, app_data_dir
 
 # ===================================================================
-# Page Config
-# ===================================================================
-st.set_page_config(
-    page_title="Roadmap",
-    page_icon="🔥",
-    layout="wide",
-)
-
-# ===================================================================
 # Helpers
 # ===================================================================
 def _bullet_list(items: list[str]) -> None:
@@ -45,20 +36,19 @@ def _safe_minmax_year(*dfs) -> tuple[int | None, int | None]:
     return min(vals), max(vals)
 
 # ===================================================================
-# Roadmap Page Function
+# Roadmap Section Function
 # ===================================================================
-def roadmap_page() -> None:
+def roadmap_section() -> None:
     # Intro
-    st.title("Roadmap")
-    st.write("This page tracks the current progress and planned next steps for the AvCan Wildfire Explorer.")
-    st.divider()
+    st.subheader("Project Roadmap")
+    st.write("Tracking the current progress and planned next steps for the AvCan Wildfire Explorer.")
 
     # -----------------------------------------------------------------
     # CURRENT STATUS
     # -----------------------------------------------------------------
-    st.markdown("## Current Status")
+    st.markdown("#### Current Project Status")
 
-    with st.expander("Stage A — Severity Patches (In progress)", expanded=True):
+    with st.expander("Stage A — Burn Severity Patches (In progress)", expanded=True):
         try:
             fires_path   = app_data_dir / "Fires.parquet"
             patches_path = app_data_dir / "Stage_A_Severity_Patches.parquet"
@@ -106,7 +96,7 @@ def roadmap_page() -> None:
                 _kv("Years covered", f"{y_min}–{y_max}")
 
             st.markdown(
-                "Stage A severity patches have been calibrated and generated for the regions currently available in this app. "
+                "Stage A burn severity patches have been calibrated and generated for the regions currently available in this application. "
                 "Additional regions will be processed in Google Earth Engine and exported to expand coverage in the Explorer."
             )
 
@@ -120,17 +110,16 @@ def roadmap_page() -> None:
     # -----------------------------------------------------------------
     # NEXT STAGES
     # -----------------------------------------------------------------
-    st.markdown("## Next Stages")
+    st.markdown("#### Next Stages")
 
-    with st.expander("Stage B — Vegetation Patches (Planned)", expanded=True):
-        stage_b_list = [
-            "Compute NDVI time-series on Stage A patches using Landsat 5/7/8/9 (post-fire year → current year).",
-            "Use Vegetation Resource Inventory (VRI) data to assess forest regrowth within Stage A patches.",
-            "Finalize Stage B classification rules and thresholds for regrowth patch identification (document rationale).",
-            "Export the Stage B layer (GeoParquet) with per-patch metrics and metadata.",
-            "Add Stage B layer toggle + summary metrics in the Explorer."
-        ]
-        _bullet_list(stage_b_list)
+    with st.expander("Stage B — Regrowth Vegetation + Forest Inventory (Planned)", expanded=False):
+        st.markdown("""
+        With the previously used Landsat satellite imagery, this project will compute a **Normalized Difference Vegetation Index (NDVI)** time-series on Stage A's Burn Severity Patches from each post-fire year to the current year. This assessment will aim to **calculate the amount of vegetation regrowth since the fire occurance**.
+                    
+        Additionally, this project plans to integrate vegetation inventory data (specifically the British Columbia Vegetation Resources Inventory (VRI) ) to characterize Stage A burn-severity patches using forest stand-structure attributes derived from the inventory's aerial photo interpretation and supporting field data. Relevant indicators for winter recreation may include canopy closure/openness, stand height, species composition, biomass proxies, and sparsity or openness classes.
+        
+        For further information on techinical method and planned analytical processes can be found on the **Method** page.
+                                """)
 
     with st.expander("Validation (Planned)", expanded=False):
         validation_list = [
@@ -152,7 +141,4 @@ def roadmap_page() -> None:
         ]
         _bullet_list(future_list)
 
-# ===================================================================
-# Run Roadmap Page Function
-# ===================================================================
-roadmap_page()
+

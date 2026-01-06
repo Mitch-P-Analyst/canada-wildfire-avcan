@@ -10,6 +10,13 @@ calibration:
   time_end: "October_31st"  
   note: "Thresholds were calibrated to match observed conditions from first-hand reports of a known forest fire."
 
+data:
+  min_year: 1990
+  max_year: 2024
+  avg_fire_count: "1,131"
+  avg_burn_ha: "2,584,733"
+  avg_burn_km: "25,847 km²"
+
 thresholds:
   dnbr_min: 0.2
   min_patch_area_ha: 10
