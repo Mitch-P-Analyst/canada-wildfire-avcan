@@ -41,7 +41,7 @@ def _safe_minmax_year(*dfs) -> tuple[int | None, int | None]:
 def roadmap_section() -> None:
     # Intro
     st.subheader("Project Roadmap")
-    st.write("Tracking the current progress and planned next steps for the AvCan Wildfire Explorer.")
+    st.write("Tracking the current progress and planned next steps for the Avalanche Canada Wildfire Explorer.")
 
     # -----------------------------------------------------------------
     # CURRENT STATUS
@@ -116,7 +116,7 @@ def roadmap_section() -> None:
         st.markdown("""
         With the previously used Landsat satellite imagery, this project will compute a **Normalized Difference Vegetation Index (NDVI)** time-series on Stage A's Burn Severity Patches from each post-fire year to the current year. This assessment will aim to **calculate the amount of vegetation regrowth since the fire occurance**.
                     
-        Additionally, this project plans to integrate vegetation inventory data (specifically the British Columbia Vegetation Resources Inventory (VRI) ) to characterize Stage A burn-severity patches using forest stand-structure attributes derived from the inventory's aerial photo interpretation and supporting field data. Relevant indicators for winter recreation may include canopy closure/openness, stand height, species composition, biomass proxies, and sparsity or openness classes.
+        Additionally, this project plans to integrate vegetation inventory data (specifically the British Columbia **Vegetation Resources Inventory (VRI)** ) to characterize Stage A burn-severity patches using forest stand-structure attributes derived from the inventory's aerial photo interpretation and supporting field data. Relevant indicators for winter recreation may include **tree canopy closure/openness, stand height, species composition, biomass proxies, and sparsity or openness classes.**
         
         For further information on techinical method and planned analytical processes can be found on the **Method** page.
                                 """)

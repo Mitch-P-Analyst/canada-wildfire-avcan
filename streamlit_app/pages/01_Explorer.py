@@ -18,7 +18,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 # Page config
 # -------------------------------------------------------------------
 st.set_page_config(
-    page_title="AvCan Wildfire Explorer",
+    page_title="Avalanche Canada Wildfire Explorer",
     page_icon="🔥",
     layout="wide"
 )
@@ -30,6 +30,8 @@ from components.loaders import load_app_layers, app_data_dir
 from components.sidebar import sidebar_controls
 from components.folium_map import build_folium_map
 from components.metrics import render_metrics_column
+from components.loaders import load_yaml_config
+from components.map_layers import map_layers_intro
 
 # ===================================================================
 # Helper Functions
@@ -48,14 +50,45 @@ def _safe_year_limits(fires_df, patches_df):
         return 1990, 2024
     return min(a for a, _ in years), max(b for _, b in years)
 
+# ===================================================================
+# Constants
+# ===================================================================
+stage_a_cfg = load_yaml_config("stage_a.yaml")
+nbac_cfg = load_yaml_config("nbac_stats.yaml")
+
+thresholds = stage_a_cfg.get("thresholds", {}) or {}
+calibration = stage_a_cfg.get("calibration", {}) or {}
+
+data = nbac_cfg.get("data", {}) or {}
+
+# Value Extraction 
+# =================================================================
+
+# ========== Thresholds =====================================
+dnbr_min = thresholds.get("dnbr_min")          # e.g., 0.2
+min_patch_area_ha = thresholds.get("min_patch_area_ha") # e.g., 10
+dnbr_value = thresholds.get("dnbr_value")
+pixel_conn = thresholds.get("connectivity")
+scale_value = thresholds.get("scale")
+
+# ========== Data =====================================
+min_year = data.get("min_year")
+max_year = data.get("max_year")
+avg_fire_count = data.get("avg_fire_count")
+avg_burn_area_ha = data.get("avg_burn_ha")
+avg_burn_km = data.get("avg_burn_km")
+total_burn_count = data.get("total_fire_count")
+total_burn_ha = data.get("total_burn_ha")
+total_burn_km = data.get("total_burn_km")
+
 
 # ===================================================================
 # Body
 # ===================================================================
 def mapp_application() -> None:
-    st.title("AvCan Wildfire Severity Explorer")
-    st.caption("Interactive map of wildfire perimeters and Stage A burn-severity patches within Avalanche Canada regions.")
-    st.info("DEBUG: Explorer page loaded — build 2026-01-02")
+    st.title("Wildfire Explorer")
+    st.caption("Interactive topographical map of AvCan forcasting regions, NBAC wildfire perimeters and map layers produced from callibrated burn severity and vegetation thresholds.")
+    st.info("Upate In Progress (Jan 8th). Address clarity structure and non-techincal communication")
     st.divider()
     # Load Cached Layers 
     # =================================================================
@@ -70,20 +103,19 @@ def mapp_application() -> None:
         regions_path.stat().st_mtime,
     )
     
-    # Instructions 
-    # =================================================================
-    st.markdown("## Instructions")
-    st.markdown("""
-    This interactive topographic map explores wildfire perimeters and **Stage A** burn-severity patches within Avalanche Canada forecast regions.
+    # ========== Overview =====================================
+    st.markdown("## Overview")
+    st.markdown(f"""
+                After combining each year of the NBAC GIS database from {min_year} to {max_year}, summary statistics inform us that Canada experienced **{total_burn_count} fires** across **{total_burn_ha} hectares** in these {(max_year - min_year) + 1} years. A quantity difficult comprehend in it's vast scale across the Canadian wilderness. 
+    To communicate this data in tangible visualisations, this interactive topographic map explores NBAC's wildfire perimeters by AvCan forecasting regions, to explore wildfire impact in proxmite areas of inhabitated communities in relation to recreational backcountry use.
 
-    **Stage A patches** are post-fire areas identified by this project’s criteria as potentially relevant for **winter recreation** (e.g., skiing, snowmobiling). They are intended as an exploratory layer to help highlight terrain for recreational use, not as an official Avalanche Canada product, simultanously communicate wildfire presence in our local backcountry environments.
-
-    ### Controls
-    Use the left sidebar to:
-    - Select a **Region** and **Year range**
-    - Toggle layers (fire perimeters, Stage A patches, region boundary)
-    - Adjust layer visibility and styling to compare patterns on the map
-    """)
+    
+                
+                """)
+    
+    # ========== Map Layers =====================================
+    map_layers_intro()
+    
     st.divider()
 
     # Filters
@@ -133,7 +165,7 @@ def mapp_application() -> None:
         show_fires=ui["show_fires"],
         show_patches=ui["show_patches"],
     )
-
+    st.divider()
     # Map Building
     # =================================================================    
     m = build_folium_map(
@@ -152,6 +184,7 @@ def mapp_application() -> None:
     )
 
     # ========== Apply Map =====================================
+    st.markdown("## Wildfire Explorer")
     st_folium(
         m,
         key="map",

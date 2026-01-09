@@ -10,14 +10,14 @@ def sidebar_controls(regions_sel, y_min, y_max):
 
         st.divider()
         st.subheader("Toggle Layers")
-        show_fires = st.checkbox("Fire perimeters", value=True)
-        show_patches = st.checkbox("Severity patches", value=True)
-        show_region = st.checkbox("Region perimeter", value=True)
+        show_region = st.checkbox("AvCan Region Perimeter", value=True)
+        show_fires = st.checkbox("Fire Perimeters", value=True)
+        show_patches = st.checkbox("Burn Severity Patches", value=True)
 
         st.divider()
         st.subheader("Legend")
         color_fires = st.color_picker("Fire perimeter", value="#ffce00")
-        color_patches = st.color_picker("Severity patches", value="#ff5a00")
+        color_patches = st.color_picker("Burn Severity patches", value="#ff5a00")
 
         st.divider()
         st.subheader("Performance")

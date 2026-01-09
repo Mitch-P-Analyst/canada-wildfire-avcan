@@ -4,6 +4,7 @@
 import streamlit as st
 import pandas as pd
 import geopandas as gpd
+import altair as alt
 
 from .loaders import load_yaml_config
 
@@ -41,9 +42,9 @@ def render_metrics_column(
     # -----------------------------
     # Header
     # -----------------------------
-    st.markdown("## Region Statistics")
+    st.markdown("### Region Statistics")
     region_s = (region or "").replace("_", " ").title()
-    st.caption(region_s)
+    st.markdown(f"Filtered region: **{region_s}**")
 
     col_fires, col_A, col_B = st.columns(3, gap="medium")
 
@@ -53,6 +54,7 @@ def render_metrics_column(
     with col_fires:
         with _card():
             st.markdown("#### Fires")
+            st.caption("NBAC Data")
 
             fires_count = int(len(fires_f)) if (show_fires and fires_f is not None) else 0
             st.metric("Count", fires_count)
@@ -63,43 +65,13 @@ def render_metrics_column(
                 fires_ha = 0
             st.metric("Area (ha)", f"{fires_ha:,.0f}")
 
-            # Details (collapsed by default)
-            with st.expander("Details", expanded=False):
-                st.markdown("**Fire causes**")
-
-                if show_fires and fires_f is not None and (not fires_f.empty) and ("Cause" in fires_f.columns):
-                    vc = (
-                        fires_f["Cause"]
-                        .fillna("Unknown")
-                        .astype(str)
-                        .str.strip()
-                        .replace({"": "Unknown"})
-                        .value_counts(dropna=False)
-                    )
-
-                    df = vc.rename_axis("Cause").reset_index(name="Count")
-                    total = int(df["Count"].sum()) or 1
-                    df["Share"] = df["Count"] / total
-
-                    st.dataframe(
-                        df.style.format({"Count": "{:,}", "Share": "{:.0%}"}),
-                        hide_index=True,
-                        use_container_width=True,
-                    )
-
-                    # Optional small chart (only if not too many categories)
-                    if len(df) <= 8:
-                        st.bar_chart(df.set_index("Cause")["Count"], height=180)
-
-                else:
-                    st.caption("No fire-cause data available for the current selection.")
-
     # =================================================================
     # Stage A card
     # =================================================================
     with col_A:
         with _card():
-            st.markdown("#### Stage A: Severity patches")
+            st.markdown("#### Burn Severity Patches")
+            st.caption("(Stage A)")
 
             a_count = int(len(patches_f)) if (show_patches and patches_f is not None) else 0
             st.metric("Count", a_count)
@@ -110,38 +82,55 @@ def render_metrics_column(
                 patch_total_ha = 0
             st.metric("Area (ha)", f"{patch_total_ha:,.0f}")
 
-            with st.expander("Details", expanded=False):
-                st.markdown("**Stage A definition**")
-                st.caption(
-                    "Stage A patches are an exploratory layer identified by this project’s criteria "
-                    "and are not an official Avalanche Canada product."
-                )
-
-                # Thresholds (clean formatting)
-                st.markdown("**Thresholds**")
-                if ref_gid:
-                    st.caption(f"Calibrated on Fire GID {ref_gid}")
-
-                parts = []
-                if dnbr_min is not None:
-                    parts.append(f"dNBR ≥ {dnbr_min:g}")
-                if min_patch_area_ha is not None:
-                    parts.append(f"Minimum patch area ≥ {min_patch_area_ha:g} ha")
-
-                if parts:
-                    st.markdown("\n".join([f"- {p}" for p in parts]))
-                else:
-                    st.caption("No thresholds found in stage_a.yaml.")
-
     # =================================================================
     # Stage B card
     # =================================================================
     with col_B:
         with _card():
-            st.markdown("#### Stage B: Vegetation patches")
+            st.markdown("#### Regrowth Vegetation + Forest Inventory")
+            st.caption("(Stage B)")
 
             # Use em dash to avoid implying a computed “0”
             # st.metric("Count", "—")
             # st.metric("Area (ha)", "—")
 
             st.info("Planned. This section will summarize Stage B criteria and outputs once implemented.")
+
+    st.markdown("#### Fire Causes")
+
+    if show_fires and fires_f is not None and (not fires_f.empty) and ("Cause" in fires_f.columns):
+        vc = (
+            fires_f["Cause"]
+            .fillna("Unknown")
+            .astype(str)
+            .str.strip()
+            .replace({"": "Unknown"})
+            .value_counts(dropna=False)
+        )
+
+        causes_df = vc.rename_axis("Cause").reset_index(name="Count")
+        total = int(causes_df["Count"].sum()) or 1
+        causes_df["Share"] = causes_df["Count"] / total
+
+        
+        chart = (
+            alt.Chart(causes_df)
+            .mark_bar(
+                color="#ffcc00de"
+            )
+            .encode(
+                x=alt.X("Cause:N", sort="-y", axis=alt.Axis(labelAngle=45)),
+                y=alt.Y("Count:Q"),
+                tooltip=[
+                    alt.Tooltip("Cause:N", title="Cause"),
+                    alt.Tooltip("Count:Q", title="Count"),
+                    alt.Tooltip("Share:Q", title="Share", format=".1%"),  # percent formatting
+                ],
+            )
+        )
+
+        st.altair_chart(chart, use_container_width=True)
+
+
+    else:
+        st.caption("No fire-cause data available for the current selection.")

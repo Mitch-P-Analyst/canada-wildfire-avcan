@@ -42,10 +42,12 @@ st.set_page_config(
 # Constants
 # ===================================================================
 stage_a_cfg = load_yaml_config("stage_a.yaml")
+nbac_cfg = load_yaml_config("nbac_stats.yaml")
 
 thresholds = stage_a_cfg.get("thresholds", {}) or {}
 calibration = stage_a_cfg.get("calibration", {}) or {}
-data = stage_a_cfg.get("data", {}) or {}
+
+data = nbac_cfg.get("data", {}) or {}
 
 # Value Extraction 
 # =================================================================
@@ -95,17 +97,17 @@ st.markdown(
         
     ##### Explorer
 
-    An interactive topographical map has been built to visualise fire perimeters in filtered AvCan regions and communicate statstical findings. An additional map layer named **burn-severity patches** has been produced, which identifies areas within filtered fires that meet calibrated thresholds to candidates for **winter recreational uses.** The burn-severity patches identifed are derived from a calibrated fire severity and minimum patch-size logic further explained in technical terms on the **Method Page** of this application. 
+    An interactive topographical map has been built to visualise fire perimeters in filtered AvCan regions and communicate statstical findings. An additional map layer named **burn-severity patches** has been produced, which identifies areas within filtered fires that meet calibrated thresholds as **candidates for winter recreational uses.** The burn-severity patches identifed are derived from a calibrated fire severity and minimum patch-size logic further explained in technical terms on the **Method Page** of this application. 
 
     Explore this interactive map to learn about and view wildfire presence, statistics and identified regions within Avalanche Canada forecasting regions.
     
     ##### Method
 
-    A pipeline overview and techinical breakdown of the analysed data from NBAC and derived map layers of Burn Severity Patches. Discussing the analytical processes and methods used in calibration.
+    A pipeline overview of the analysis and strucutre of this data project. Along with techinical breakdowns of the analysed data from NBAC and derived map layers of Burn Severity Patches. Discussing the analytical processes and methods used in creating and implementing calibrations. 
     
     ##### Data
 
-    Descriptive explanation of datasets used to produce the AvCan Wildfire Explorer, including both external sources and derived project layers. 
+    Descriptive explanation of datasets used to produce the AvCan Wildfire Explorer project, including both external sources and derived project layers. 
     """
 )
 
