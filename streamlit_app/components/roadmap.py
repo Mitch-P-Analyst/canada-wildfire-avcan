@@ -48,7 +48,7 @@ def roadmap_section() -> None:
     # -----------------------------------------------------------------
     st.markdown("#### Current Project Status")
 
-    with st.expander("Stage A — Burn Severity Patches (In progress)", expanded=True):
+    with st.expander("Burn Severity Patches (Stage A - In progress)", expanded=True):
         try:
             fires_path   = app_data_dir / "Fires.parquet"
             patches_path = app_data_dir / "Stage_A_Severity_Patches.parquet"
@@ -112,7 +112,7 @@ def roadmap_section() -> None:
     # -----------------------------------------------------------------
     st.markdown("#### Next Stages")
 
-    with st.expander("Stage B — Regrowth Vegetation + Forest Inventory (Planned)", expanded=False):
+    with st.expander("Regrowth Vegetation + Forest Inventory (Stage B - Planned)", expanded=False):
         st.markdown("""
         With the previously used Landsat satellite imagery, this project will compute a **Normalized Difference Vegetation Index (NDVI)** time-series on Stage A's Burn Severity Patches from each post-fire year to the current year. This assessment will aim to **calculate the amount of vegetation regrowth since the fire occurance**.
                     

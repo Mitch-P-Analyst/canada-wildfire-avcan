@@ -58,48 +58,48 @@ def map_layers_intro(
     # Header 
     # =================================================================
     st.markdown("### Map Layers")
-    st.caption("All map layers, filters and legend customisations can be found on the **left side of this application**.")
+    st.caption("All map layers, filters, and legend settings are available in the **left sidebar**.")
 
     # Regions 
     # =================================================================
     
     with st.expander("##### AvCan Region Perimeter", expanded=False):
         st.markdown(f"""
-        Presented wildfires in the map below will be filtered to a chosen **AvCan Forecasting Region**. In the sidebar, select from the available regions to observe proximate fires. 
+        All map layers shown below are filtered to the selected **AvCan forecasting region**. Use the **Region selector** in the sidebar to switch regions and explore nearby fires.
                     
-        The AvCan Region Perimeter is indicated by a **thick black line**, outlining the forecasting region and boundary for filtered fires.
+        The AvCan Region Perimeter is indicated by a **thick black line**, representing the boundary used to filter displayed features.
                     
-        Your chosen region will compile summary statistics above the topographical map of relevant details of presented map layers.
+        Summary statistics update automatically based on the selected **region, year range, and enabled layers**.
                 """)
         
     with st.expander("##### Fire Perimeters", expanded=False):
         st.markdown(f"""
-        NBAC fires within the chosen AvCan Region Perimeter are visualised with a default <span style='color:#ffce00;'>Yellow Colour.</span> This colour can be modified in the **Legends** section of the sidebar. 
+        NBAC fires within the selected AvCan region are visualised with a default <span style='color:#ffce00;'>Yellow Colour.</span> This colour can be changed in the **Legends** section of the sidebar. 
                     
-        The date range of presented fires can be modified in the **filters** section, to visualise and receive regional summary statistics of specific time periods.
+        Use the **Year range** filter to adjust which fires are displayed and to update regional summary statistics for the selected period.
                     
         Each fire perimeter includes the following metadata:
         - **Region**: The AvCan region the fire boundary resides in.
         - **Subregion**: The AvCan's subregion the fire boundary resides in.
-        - **Yea**: The year of fire occurance.
+        - **Year**: The year the fire occurred.
         - **Unique Fire ID (gid)**: NBAC's assigned unique identification number
-        - **Total Adjusted Area (ha)**: NBAC's total calculated hecteras burned.
+        - **Total Adjusted Area (ha)**: NBAC’s calculated burned area (hectares).
                    """, unsafe_allow_html=True)
         
     with st.expander("##### Burn Severity Patches (Stage A)", expanded=False):
         st.markdown(f"""
-        Stage A of this AvCan wildfire explorer computes custom derived **burn severity patches** within NBAC fire perimeters. These are visualised in an seperate map layer with default <span style='color:#ff5a00;'>Orange Colour</span> perimeters. This colour can be modified in the **Legends** section of the sidebar. 
+        Stage A of this AvCan Wildfire Explorer computes custom, derived **burn severity patches** within NBAC fire perimeters. These patches are visualised in an seperate map layer with default <span style='color:#ff5a00;'>Orange Colour</span> perimeters. This colour can be changed in the **Legends** section of the sidebar.
                     
-        Burn severity patches are post-fire areas identified by this project’s criteria as candidates for winter recreation (e.g., skiing, snowboarding snowmobiling) as commonly known "Burnt Tree Zones". This layer is intended as an exploratory layer to help highlight terrain for recreational use, not as an official Avalanche Canada product. For information on this layer's computation, refer to the **Method** page of this application. 
+       Burn severity patches represent post-fire areas that meet this project’s criteria as potential candidates for winter recreation (e.g., skiing, snowboarding, snowmobiling), sometimes referred to as “burnt tree zones.” This layer is intended as an exploratory layer to help highlight terrain for recreational use, not as an official Avalanche Canada product. For information on this layer's computation, refer to the **Method** page. 
         
         Each burn severity patch perimeter includes the following metadata:
         - **Region**: The AvCan region the fire boundary resides in.
         - **Subregion**: The AvCan's subregion the fire boundary resides in.
-        - **Yea**: The year of the fire occurance.
-        - **Patch ID**: A patch assigned ID within the reference fire.
-        - **Majority Cardinal Direction**: Within the identified patch, the most common cardinal direction per pixel.
-        - **Patch Area (ha)**: Hectare area of identified patch.
+        - **Year**: The year the reference fire occurred.
+        - **Patch ID**: An identifier assigned to the patch within the reference fire.
+        - **Majority Cardinal Direction**: The most common aspect (cardinal direction) across pixels within the patch.
+        - **Patch Area (ha)**: Area of the patch in hectares.
         - **Mean Elevation (m)**: Average elevation of patch in metres.
-        - **Mean Slope Degree**: Average gradient of patch.
+        - **Mean Slope Degree**: Average slope of the patch in degrees.
                     """, unsafe_allow_html=True)
         

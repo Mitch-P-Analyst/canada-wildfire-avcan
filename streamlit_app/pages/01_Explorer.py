@@ -106,8 +106,9 @@ def mapp_application() -> None:
     # ========== Overview =====================================
     st.markdown("## Overview")
     st.markdown(f"""
-                After combining each year of the NBAC GIS database from {min_year} to {max_year}, summary statistics inform us that Canada experienced **{total_burn_count} fires** across **{total_burn_ha} hectares** in these {(max_year - min_year) + 1} years. A quantity difficult comprehend in it's vast scale across the Canadian wilderness. 
-    To communicate this data in tangible visualisations, this interactive topographic map explores NBAC's wildfire perimeters by AvCan forecasting regions, to explore wildfire impact in proxmite areas of inhabitated communities in relation to recreational backcountry use.
+                After combining annual NBAC GIS data from {min_year} to {max_year}, summary statistics show that Canada recorded **{total_burn_count} fires** and **{total_burn_ha} hectares burned** over this {(max_year - min_year) + 1} period. A quantity difficult to comprehend at a national scale. 
+    
+    To make this data more tangible, this interactive topographic map overlays **NBAC wildfire perimeters** with **Avalanche Canada (AvCan) forecasting regions**, allowing users to explore wildfire impacts near mountain communities and within nearby backcountry recreation areas.
 
     
                 

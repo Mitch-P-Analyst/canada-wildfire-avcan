@@ -51,6 +51,7 @@ def data_page() -> None:
 
     dnbr_min = thresholds.get("dnbr_min")
     min_patch_area_ha = thresholds.get("min_patch_area_ha")
+    min_patch_pixel = thresholds.get("min_patch_pixels")
     connectivity = thresholds.get("connectivity") or thresholds.get("pixel_conn")  # support either key
     dnbr_value = thresholds.get("dnbr_value")
 
@@ -68,10 +69,10 @@ def data_page() -> None:
     st.markdown("### App files")
     st.caption("Processed layers loaded by the Streamlit app (GeoParquet, reprojected to WGS84 / EPSG:4326).")
     st.markdown("""
-    - **Fires:** `data/processed/app/Fires.parquet`
-    - **Stage A severity patches:** `data/processed/app/Stage_A_Severity_Patches.parquet`
-    - **Regions:** `data/processed/app/Regions.parquet`
-    - **Stage B regrowth patches (planned):** `data/processed/app/Stage_B_Regrowth_Patches.parquet`
+    - **AvCan Region Perimeters:** `data/processed/app/Regions.parquet`
+    - **Fire Perimeters:** `data/processed/app/Fires.parquet`
+    - **Burn Severity Patches (Stage A):** `data/processed/app/Stage_A_Severity_Patches.parquet`
+    - **Regrowth Vegetation + Forest Inventory (Stage B - planned):** `data/processed/app/Stage_B_Regrowth_Patches.parquet`
     """)
 
     # ========== Data Lineage =====================================
@@ -140,7 +141,7 @@ def data_page() -> None:
     # ========== AvCan Regions =====================================
     
     with st.expander("Avalanche Canada Forecast Regions (forecast-polygons)", expanded=True):
-        _kv("What it is", "Avalanche Canada (AvCan) forecast regions and subregions used for avalanche forecasting.")
+        _kv("What it is", "Avalanche forecasting region geometry boundaries.")
         _kv("Publisher", "Avalanche Canada")
         _kv("Why it’s used", "Defines the spatial extent for filtering fires and presenting results in backcountry-relevant regions.")
         _kv("Downloaded as", "GeoJSON")
@@ -152,10 +153,9 @@ def data_page() -> None:
 
     # ========== Stage A =====================================
     
-    with st.expander("Stage A – Severity Patches (derived)", expanded=True):
+    with st.expander("Burn Severity Patches (Stage A)", expanded=True):
         _kv("What it is", "Derived burn-severity patches clipped to AvCan regions, produced from satellite-based severity logic and minimum patch-size filtering.")
-        _kv("Stage", f"{stage_meta.get('name', 'Stage A')}")
-        _kv("Why it’s used", "Represents candidate ‘burn-zone’ patches based on calibrated severity and patch-size thresholds.")
+        _kv("Why it’s used", "Represents candidate ‘burnt tree zone’ patches based on calibrated severity and patch-size thresholds.")
         _kv("Calibration reference", f"{ref_region} / Fire ID {ref_gid}" if (ref_region or ref_gid) else "Defined in stage_a.yaml")
         _kv("Shipped to app as", "`data/processed/app/Stage_A_Severity_Patches.parquet` (GeoParquet; WGS84 / EPSG:4326)")
 
@@ -165,13 +165,11 @@ def data_page() -> None:
         st.markdown("**Thresholds (from `stage_a.yaml`):**")
         t_items = []
         if dnbr_min is not None:
-            t_items.append(f"dNBR ≥ {dnbr_min}")
-        if min_patch_area_ha is not None:
-            t_items.append(f"Minimum patch area ≥ {min_patch_area_ha} ha")
-        if connectivity:
-            t_items.append(f"Connectivity: {connectivity}")
-        if dnbr_value:
-            t_items.append(f"Severity class label: {dnbr_value}")
+            t_items.append(f"Difference Normalized Burn Ratio (dNBR) ≥ {dnbr_min}")
+        if min_patch_area_ha and min_patch_pixel is not None:
+            t_items.append(f"Minimum patch area ≥ {min_patch_area_ha} ha / {min_patch_pixel} pixels ")
+        if connectivity is not None:
+            t_items.append(f"Pixel Connectivity: {connectivity}")
         _bullet_list(t_items if t_items else ["(No thresholds found in config)"])
 
         if time_start or time_end:
@@ -187,7 +185,7 @@ def data_page() -> None:
     # ========== Stage B =====================================
     
     
-    with st.expander("Stage B – Vegetation Regrowth Patches (planned)", expanded=False):
+    with st.expander("Regrowth Vegetation + Forest Inventory (Stage B - Planned)", expanded=False):
         st.write(
             "Stage B will filter Stage A patches based on indicators of vegetation recovery to prioritize "
             "more open-canopy / low-obstruction candidate zones."
