@@ -16,6 +16,7 @@ data/raw/NBAC/*
 data/processed/analysis/*
 data/processed/cached/*
 data/external/bc_vri/*
+data/raw/stage_a2_geojson/*
 
 # StatsCan provinces shapefile (large, external)
 data/external/stats_canada/boundaries/*
