@@ -71,7 +71,7 @@ def data_page() -> None:
     st.markdown("""
     - **AvCan Region Perimeters:** `data/processed/app/Regions.parquet`
     - **Fire Perimeters:** `data/processed/app/Fires.parquet`
-    - **Burn Severity Patches (Stage A):** `data/processed/app/Stage_A_Severity_Patches.parquet`
+    - **Burn Severity Patches (Stage A):** `data/processed/app/Stage_A2_Burn_Severity_Patches.parquet`
     - **Regrowth Vegetation + Forest Inventory (Stage B - planned):** `data/processed/app/Stage_B_Regrowth_Patches.parquet`
     """)
 
@@ -100,7 +100,7 @@ def data_page() -> None:
             # Load Cached Layers 
             # =================================================================
             fires_path   = app_data_dir / "Fires.parquet"
-            patches_path = app_data_dir / "Stage_A_Severity_Patches.parquet"
+            patches_path = app_data_dir / "Stage_A2_Burn_Severity_Patches.parquet"
             regions_path = app_data_dir / "Regions.parquet"
 
             fires, patches, regions = load_app_layers(
@@ -157,7 +157,7 @@ def data_page() -> None:
         _kv("What it is", "Derived burn-severity patches clipped to AvCan regions, produced from satellite-based severity logic and minimum patch-size filtering.")
         _kv("Why it’s used", "Represents candidate ‘burnt tree zone’ patches based on calibrated severity and patch-size thresholds.")
         _kv("Calibration reference", f"{ref_region} / Fire ID {ref_gid}" if (ref_region or ref_gid) else "Defined in stage_a.yaml")
-        _kv("Shipped to app as", "`data/processed/app/Stage_A_Severity_Patches.parquet` (GeoParquet; WGS84 / EPSG:4326)")
+        _kv("Shipped to app as", "`data/processed/app/Stage_A2_Burn_Severity_Patches.parquet` (GeoParquet; WGS84 / EPSG:4326)")
 
         if ref_note:
             _kv("Calibration note", ref_note)

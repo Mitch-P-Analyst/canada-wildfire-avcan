@@ -40,7 +40,7 @@ def build_folium_map(
     if show_patches and patches_gdf is not None and not patches_gdf.empty:
         folium.GeoJson(
             patches_gdf,
-            name="Severity patches",
+            name="Burn Severity patches",
             style_function=lambda _: {"color": color_patches, "weight": 1.5, "fill": True, "fillOpacity": 0.35},
             tooltip=folium.GeoJsonTooltip(
                 fields=[c for c in ["Region","Subregion","Year","Patch ID","Majority Cardinal Direction","Patch Area (ha)","Mean Elevation (m)","Mean Slope Degree"] if c in patches_gdf.columns],

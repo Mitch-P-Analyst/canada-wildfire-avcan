@@ -94,7 +94,7 @@ def render_metrics_column(
             # st.metric("Count", "—")
             # st.metric("Area (ha)", "—")
 
-            st.info("Planned. This section will summarize Stage B criteria and outputs once implemented.")
+            st.info("Planned. This section will summarize Stage B statistics once implemented.")
 
     st.markdown("#### Fire Causes")
 
@@ -129,7 +129,7 @@ def render_metrics_column(
             )
         )
 
-        st.altair_chart(chart, use_container_width=True)
+        st.altair_chart(chart, width='stretch')
 
 
     else:

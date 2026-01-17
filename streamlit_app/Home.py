@@ -79,7 +79,7 @@ The Canadian **National Burned Area Composite (NBAC)**, maintained by Natural Re
             
 According to NBAC, since **{fmt(min_year)}** Canada has experienced an average of **{fmt(avg_fire_count)} fires per year**, burning approximately **{fmt(avg_burn_area_ha)} hectares** annually ({fmt(avg_burn_km)}). That is roughly **half the area of Nova Scotia every year**. Despite the scale of this size, the footprint of wildfire can be easy to miss on the ground, even for those living in close proximity or people traveling through mountain landscapes.
 
-Many winter recreation users, such as skiers, snowboarders, and snowmobilers, are familiar with burned forests. Post-fire terrain can create unique conditions for travel and, in some contexts, enjoyable gladed riding when combined with favorable snow and stability. **Avalanche Canada (AvCan)** is a **non-profit organization** that provides public avalanche safety information and education, including regional avalanche forecasts and hazard bulletins informed by professional observations and community-submitted reports.
+Many winter recreation users, such as skiers, snowboarders, and snowmobilers, are familiar with burned forests. Post-fire terrain, sometimes referred to as "Burnt Tree Zones", can create unique conditions for travel and enjoyable gladed riding when combined with favorable snow and stability. **Avalanche Canada (AvCan)** is a **non-profit organization** that provides public avalanche safety information and education, including regional avalanche forecasts and hazard bulletins informed by professional observations and community-submitted reports.
 
 The initial objective of this **Avalanche Canada Wildfire Explorer** is to overlay NBAC-recorded wildfire perimeters with Avalanche Canada forecast regions to make wildfire impacts more tangible in the mountain environments used by the public. By pairing wildfire statistics with mapped recreation-relevant areas, this project aims to support awareness of wildfire presence in mountain communities and help users explore how these landscapes are changing over time. This dataset and workflow can be extended to support additional analyses, such as regional trends in fire frequency, burned area, severity, and ignition causes, with potential applications in research, planning, and risk communication.
             
@@ -135,7 +135,7 @@ with st.expander("App data location (debug)", expanded=False):
             [
                 "Fires.parquet",
                 "Regions.parquet",
-                "Stage_A_Severity_Patches.parquet",
+                "Stage_A2_Burn_Severity_Patches.parquet",
             ]
         )
     )

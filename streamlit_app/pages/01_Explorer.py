@@ -93,7 +93,7 @@ def mapp_application() -> None:
     # Load Cached Layers 
     # =================================================================
     fires_path   = app_data_dir / "Fires.parquet"
-    patches_path = app_data_dir / "Stage_A_Severity_Patches.parquet"
+    patches_path = app_data_dir / "Stage_A2_Burn_Severity_Patches.parquet"
     regions_path = app_data_dir / "Regions.parquet"
 
     fires, patches, regions = load_app_layers(

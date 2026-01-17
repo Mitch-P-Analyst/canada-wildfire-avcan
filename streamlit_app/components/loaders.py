@@ -61,7 +61,7 @@ def _ensure_wgs84(gdf: gpd.GeoDataFrame, name: str) -> gpd.GeoDataFrame:
 @st.cache_data(show_spinner=False)
 def load_app_layers(app_data_dir: Path, fires_mtime: float, patches_mtime: float, regions_mtime: float):
     fires   = gpd.read_parquet(app_data_dir / "Fires.parquet")
-    patches = gpd.read_parquet(app_data_dir / "Stage_A_Severity_Patches.parquet")
+    patches = gpd.read_parquet(app_data_dir / "Stage_A2_Burn_Severity_Patches.parquet")
     regions = gpd.read_parquet(app_data_dir / "Regions.parquet")
 
     fires   = _ensure_wgs84(fires, "Fires")
