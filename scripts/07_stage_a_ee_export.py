@@ -27,7 +27,7 @@ STAGE_A2_FOLDER = "projects/wildfire-canada-475322/assets/AvCan_Wildfire_Explore
 GCS_BUCKET = "avcan_wildfire_explorer_stage_a"
 
 # Optional "folder" path inside the bucket
-GCS_PREFIX = "exports/stage_a2_geojson"
+GCS_PREFIX = "exports/stage_A2"
 
 # Batch sizing: start conservative; lower if exports shard or fail
 BATCH_SIZE = 25
@@ -128,7 +128,7 @@ def main() -> None:
     active: Dict[str, Dict[str, Any]] = {}
 
     for bi, batch_ids in enumerate(batches, start=1):
-        desc = f"AvCan_Stage_A2_batch_{bi:03d}_GeoJSON"
+        desc = f"AvCan_Stage_A2_batch_{bi:03d}"
         file_prefix = f"{GCS_PREFIX}/{desc}"
         gcs_uri = f"gs://{GCS_BUCKET}/{file_prefix}.geojson"
 

@@ -34,8 +34,8 @@ REPO_ROOT = script_path.parents[1]
 data_dir = REPO_ROOT / 'data/'
 docs_dir = REPO_ROOT / 'docs/'
 raw_dir = data_dir / "raw"
-stage_a2_dir = raw_dir / "stage_a2_geojson"
-processed_dir = data_dir / 'processed' / 'analysis/'
+analysis_dir = data_dir / 'processed' / 'analysis/'
+stage_a2_dir = analysis_dir / "stage_A/stage_A2"
 app_data_dir = data_dir / 'processed' / 'app/'
 share_data_dir = data_dir / 'processed' / 'share/'
 
@@ -101,7 +101,7 @@ print(f"De-duped by {dedup_cols}: {before} -> {len(stage_A_polys)}")
 # =================================================================
 
 print(f'Loading all AvCan fires shapefile...')
-avcan_fires_file = processed_dir / 'avalanche_canada/fires/AvCan_fires_1990_2024.shp'
+avcan_fires_file = analysis_dir / 'avalanche_canada/fires/AvCan_fires_1990_2024.shp'
 
 avcan_fires = gpd.read_file(avcan_fires_file)
 print(f' AvCan fires loaded. CRS: {avcan_fires.crs}\n')
@@ -110,7 +110,7 @@ print(f' AvCan fires loaded. CRS: {avcan_fires.crs}\n')
 # =================================================================
 
 print(f'Loading AvCan regions shapefile...')
-avcan_path = processed_dir / "avalanche_canada/regions/AvCan_cleaned_subregions.geojson"
+avcan_path = analysis_dir / "avalanche_canada/regions/AvCan_cleaned_subregions.geojson"
 avcan_regions= gpd.read_file(avcan_path)
 print(f" AvCan Regions loaded. CRS: {avcan_regions.crs}\n")
 
@@ -148,6 +148,7 @@ RENAME_MAP = {
     "gid": "Unique Fire ID (gid)",
     "fireid": "FireID",
     "patch_id": "Patch ID",
+    
 
     # Fire attributes (from avcan_fires)
     "tot_adj_ha": "Total Adjusted Area (ha)",
@@ -158,6 +159,7 @@ RENAME_MAP = {
     # Stage A2 patch attributes
     "natpark": "National Park",
     "scenario": "Scenario",
+    "id": "ee_feature_id",
 
     "patch_area_ha": "Patch Area (ha)",
     "patch_area_m2": "Patch Area (m2)",
@@ -188,6 +190,14 @@ avcan_fires = round_numeric_columns(avcan_fires, 2, exclude=["FireID","Unique Fi
 stage_A_polys = round_numeric_columns(stage_A_polys, 2, exclude=["FireID","Unique Fire ID (gid)","Patch ID"])
 avcan_regions = round_numeric_columns(avcan_regions, 2, exclude=["FireID","Unique Fire ID (gid)","Patch ID"])
 print(' Numeric Rounding.')
+
+# ======= Stage A Unique IDs =======#
+stage_A_polys["Patch_Unique_Id"] = (
+    stage_A_polys["Unique Fire ID (gid)"].astype(str) + "_" +
+    stage_A_polys["Patch ID"].astype(str)
+)
+print(' Unique ID computed')
+
 
 # Masking
 # =================================================================
