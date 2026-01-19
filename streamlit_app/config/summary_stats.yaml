@@ -1,0 +1,77 @@
+data:
+  min_year: 1990
+  max_year: 2024
+  n_years: 35
+nbac:
+  total_fires: 39616
+  avg_fires_per_year: 1131.8857142857144
+  median_fires_per_year: 1132.0
+  total_burn_ha: 90465665.73580533
+  total_burn_km2: 904656.6573580534
+  avg_burn_ha_per_year: 2584733.3067372954
+  avg_burn_km2_per_year: 25847.333067372954
+  avg_fire_burn_ha: 2283.563856416734
+  avg_fire_burn_km2: 22.83563856416734
+  median_burn_ha_per_year: 1796630.04859189
+  median_burn_km2_per_year: 17966.3004859189
+  largest_fire_id: '2023_310'
+  largest_fire_province: Northwest Territories
+  largest_fire_burn_ha: 1146936.731336
+  largest_fire_burn_km2: 11469.367313359999
+avcan:
+  total_fires: 3838
+  avg_fires_per_year: 109.65714285714286
+  median_fires_per_year: 79.0
+  total_burn_ha: 2271966.2429026375
+  total_burn_km2: 22719.662429026375
+  avg_burn_ha_per_year: 64913.321225789645
+  avg_burn_km2_per_year: 649.1332122578965
+  median_burn_ha_per_year: 10641.555051794046
+  median_burn_km2_per_year: 106.41555051794046
+  largest_fire_id: '2024_451'
+  largest_fire_province: Alberta
+  largest_fire_regions:
+  - J
+  - a
+  - e
+  - p
+  - r
+  - s
+  largest_fire_burn_ha: 126578.391614
+  largest_fire_burn_km2: 1265.78391614
+  median_burn_per_fire_ha: 12.478307959
+  median_burn_per_fire_km2: 0.12478307959
+  avg_burn_ha_per_fire_ha: 591.9661914806246
+  avg_burn_ha_per_fire_km2: 5.919661914806246
+  p90_burn_ha_per_fire: 533.6747021372
+  p95_burn_ha_per_fire: 1504.4266319199996
+stage_a:
+  total_patches: 6625
+  total_fires_with_patches: 1051
+  avg_patches_per_fire_with_patches: 6.303520456707897
+  median_patches_per_fire_with_patches: 2.0
+  p90_patches_per_fire_with_patches: 13.0
+  avg_patches_per_avcan_fire: 1.7261594580510682
+  total_patch_ha: 377178.88
+  avg_patch_ha: 56.932661132075474
+  median_patch_ha: 13.51
+  p90_patch_ha: 102.686
+  p95_patch_ha: 204.1339999999999
+  largest_patch_id: '2014_454_16.0'
+  largest_patch_region: North_Rockies
+  largest_patch_subregion: Tumbler
+  largest_patch_ha: 10075.89
+  largest_patch_km2: 100.7589
+  pct_avcan_fires_with_patches: 0.27384054194893176
+  pct_avcan_burn_in_patches: 0.16601429760598937
+  avg_patch_ha_per_avcan_fire: 98.27485148514852
+  avg_patch_ha_per_fire_with_patches: 358.8761941008563
+  patches_per_1000ha_burned: 2.9159764238116397
+  max_patch_year: 2003
+  max_patch_year_ha: 52534.98
+  top_region_by_patch_ha: South_Coast_Inland
+  top_region_patch_share: 0.2148943758462828
+  pct_patches_mixed_aspect: 0.14279245283018868
+  aspect_R_median: 0.91
+  slope_mean_deg_median: 21.59
+  elev_mean_m_median: 1407.66

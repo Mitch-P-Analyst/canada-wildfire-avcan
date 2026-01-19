@@ -28,3 +28,4 @@ fields:
   direction: "Majority Cardinal Direction"
   mean_elevation: "Mean Elevation (m)"
   slope: "Mean Slope Degree"
+
