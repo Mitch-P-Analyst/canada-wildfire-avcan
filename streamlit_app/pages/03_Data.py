@@ -28,6 +28,13 @@ def _bullet_list(items: list[str]) -> None:
 def _kv(label: str, value: str) -> None:
     st.markdown(f"**{label}:** {value}")
 
+def fmt_int(n):
+    return "—" if n is None else f"{int(n):,}"
+
+def fmt_num(x, decimals=0):
+    return "—" if x is None else f"{x:,.{decimals}f}"
+
+
 # ===================================================================
 # Data Page Function
 # ===================================================================
@@ -40,6 +47,7 @@ def data_page() -> None:
         "This page describes the datasets used to produce the AvCan Wildfire Explorer, "
         "including both external sources and derived project layers."
     )
+    st.info("Upate In Progress (Jan 19th). Updating pipeline structure and summary statistics")
     st.divider()
 
    # Stage A config (derived layer metadata) 
@@ -60,6 +68,86 @@ def data_page() -> None:
     time_start = calibration.get("time_start")
     time_end = calibration.get("time_end")
     ref_note = calibration.get("note")
+
+   # Summary stats data
+   # =================================================================
+    stats = load_yaml_config("summary_stats.yaml") or {}
+    data = stats.get("data",{}) or {}
+    nbac = stats.get("nbac",{}) or {}
+    avcan = stats.get("avcan",{}) or {}
+    stage_a_data = stats.get("stage_a",{}) or {}
+
+    # ========== All Data =====================================
+    min_year = data.get("min_year")
+    max_year = data.get("max_year")
+    n_years = data.get("n_years")
+
+    # ========== nbac =====================================
+    nbac_total_fires = nbac.get("total_fires")
+    nbac_avg_fires_per_year = nbac.get("avg_fires_per_year")
+    nbac_burn_ha = nbac.get("total_burn_ha")
+    nbac_burn_km = nbac.get("total_burn_km2")
+    nbac_avg_burn_ha_per_year = nbac.get("avg_burn_ha_per_year")
+    nbac_avg_fire_burn_ha = nbac.get("avg_fire_burn_ha")
+    nbac_avg_fire_burn_km = nbac.get("avg_fire_burn_km2")
+    nbac_largest_id = nbac.get("largest_fire_id")
+    nbac_largest_fire_prov = nbac.get("largest_fire_province")
+    nbac_largest_fire_burn_ha = nbac.get("largest_fire_burn_ha")
+
+    # ========== avcan =====================================
+    avcan_total_fires = avcan.get("total_fires")
+    avcan_avg_fires_per_year = avcan.get("avg_fires_per_year")
+    avcan_median_fires_per_year = avcan.get("median_fires_per_year")
+    avcan_total_burn_ha = avcan.get("total_burn_ha")
+    avcan_total_burn_km = avcan.get("total_burn_km2")
+    avcan_avg_burn_ha_per_year  = avcan.get("avg_burn_ha_per_year")
+    avcan_avg_burn_km_per_year  = avcan.get("avg_burn_km2_per_year")
+    avcan_median_burn_ha_per_year   = avcan.get("median_burn_ha_per_year")
+    avcan_median_burn_km_per_year   = avcan.get("median_burn_km2_per_year")
+    avcan_largest_id = avcan.get("largest_fire_id")
+    avcan_largest_fire_prov = avcan.get("largest_fire_province")
+    avcan_lagest_fire_region    = avcan.get("largest_fire_regions")
+    avcan_largest_fire_burn_ha  = avcan.get("largest_fire_burn_ha")
+    avcan_largest_fire_burn_km  = avcan.get("largest_fire_burn_km2")
+    avcan_avg_fire_burn_ha = avcan.get("avg_burn_ha_per_fire_ha")
+    avcan_avg_fire_burn_km = avcan.get("avg_burn_ha_per_fire_km2")
+    avcan_median_fire_burn_ha  = avcan.get("median_burn_per_fire_ha")
+    avcan_median_fire_burn_km = avcan.get("median_burn_per_fire_km2")
+    avcan_90_percentile_burn_ha = avcan.get("p90_burn_ha_per_fire")
+    avcan_95_percentile_burn_ha = avcan.get("p95_burn_ha_per_fire")
+
+    # ========== stage_A =====================================
+    A_total_patches = stage_a_data.get("total_patches")
+    A_total_fires_w_patches = stage_a_data.get("total_fires_with_patches")
+    A_avg_patches_per_fire_w_patches    = stage_a_data.get("avg_patches_per_fire_with_patches")
+    A_median_patches_per_fire_w_patches = stage_a_data.get("median_patches_per_fire_with_patches")
+    A_90_percentile_patches_per_fire_w_patches  = stage_a_data.get("p90_patches_per_fire_with_patches")
+    A_avg_patches_per_avcan_fire    = stage_a_data.get("avg_patches_per_avcan_fire")
+    A_total_patch_ha    = stage_a_data.get("total_patch_ha")
+    A_avg_patch_ha  = stage_a_data.get("avg_patch_ha")
+    A_median_patch_ha   = stage_a_data.get("median_patch_ha")
+    A_90_percentile_patch_ha    = stage_a_data.get("p90_patch_ha")
+    A_95_percentile_patch_ha    = stage_a_data.get("p95_patch_ha")
+    A_largest_patch_id  = stage_a_data.get("largest_patch_id")
+    A_largest_patch_region  = stage_a_data.get("largest_patch_region")
+    A_largest_patch_subregion   = stage_a_data.get("largest_patch_subregion")
+    A_largest_patch_ha  = stage_a_data.get("largest_patch_ha")
+    A_largest_patch_km  = stage_a_data.get("largest_patch_km2")
+    # ======= Coverage =======#
+    A_pct_avcan_fires_w_patches = stage_a_data.get("pct_avcan_fires_with_patches")
+    A_pct_avcan_burn_in_patches = stage_a_data.get("pct_avcan_burn_in_patches")
+    A_patches_per_1000ha_burned = stage_a_data.get("patches_per_1000ha_burned")
+    A_max_patch_year    = stage_a_data.get("max_patch_year")
+    A_max_patch_year_ha = stage_a_data.get("max_patch_year_ha")
+    A_top_region_patch_ha   = stage_a_data.get("top_region_by_patch_ha")
+    A_top_region_patch_share    = stage_a_data.get("top_region_patch_share")
+    # ======= Terrain =======#
+    A_patch_mixed_aspect_pct    = stage_a_data.get("pct_patches_mixed_aspect")
+    A_aspect_R_median   = stage_a_data.get("aspect_R_median")
+    A_median_slope_deg  = stage_a_data.get("slope_mean_deg_median")
+    A_median_elevation  = stage_a_data.get("elev_mean_m_median")
+    
+    
 
    # Core Layers 
    # =================================================================
@@ -82,51 +170,48 @@ def data_page() -> None:
     _bullet_list([
         "Raw: NBAC annual burned-area polygons (Natural Resources Canada / CWFIS).",
         "Raw: Avalanche Canada forecast polygons (regions/subregions).",
-        "Python preprocessing: spatial overlay + labeling (NBAC ∩ AvCan) → exported as an Earth Engine table asset.",
-        "Google Earth Engine: Stage A severity patches derived using dNBR + patch-size thresholds.",
+        "Python preprocessing: spatial overlay + labeling (NBAC + AvCan) → exported as an Earth Engine table asset.",
+        "Google Earth Engine Python API: Stage A severity patches derived using dNBR + patch-size thresholds.",
         "Python post-processing: exported outputs normalized + saved as GeoParquet app layers (EPSG:4326).",
     ])
 
-    st.markdown("**Key repo scripts/notebooks:**")
-    _bullet_list([
-        "`scripts/…` (NBAC ingest + AvCan overlay)",   # replace with your actual path
-        "`notebooks/…` (export to GeoParquet / app layers)",  # replace with your actual path
-    ])
+    # ========== Summary Statistics =====================================
+    
+    st.markdown("### Data Summary Statistics**")
+    st.markdown(f"""
+    The following data encompass summary statistics for {n_years} years, between {min_year} → {max_year}, for all datasets cleaned and computed throughout this proejct.
+                """)
 
+    # ======= NBAC =======#
+    with st.expander("NBAC Fires",expanded=False):
+        _kv("Total fires",fmt_int(nbac_total_fires))
+        _kv("Average fires per year", fmt_num(nbac_avg_fires_per_year,2))
+        _kv("Total burn",f"{fmt_num(nbac_burn_ha,2)} ha ({fmt_num(nbac_burn_km,2)} km²)")
+        _kv("Average burn per year", f"{fmt_num(nbac_avg_burn_ha_per_year,2)} ha ({fmt_num(nbac_burn_km,2)} km²)")
+        _kv("Average fire burn",f"{fmt_num(nbac_avg_fire_burn_ha,2)} ha ({fmt_num(nbac_avg_fire_burn_km,2)} km²)")
+        _kv("Largest fire",f"Unique ID {nbac_largest_id} in {nbac_largest_fire_prov}")
+        _kv("Largest fire burn (ha)", fmt_num(nbac_largest_fire_burn_ha,2))
 
-    # Load Cached Layers (optional: quick transparency + QA)
-    with st.expander("App layer summary (counts)", expanded=False):
-        try:
-            # Load Cached Layers 
-            # =================================================================
-            fires_path   = app_data_dir / "Fires.parquet"
-            patches_path = app_data_dir / "Stage_A2_Burn_Severity_Patches.parquet"
-            regions_path = app_data_dir / "Regions.parquet"
+    # ======= Avcan =======#
+    with st.expander("Avalance Canada Fires",expanded = False):
+        _kv("Total fires",fmt_int(avcan_total_fires))
+        _kv("Average fires per year",fmt_num(avcan_avg_fires_per_year,2))
+        _kv("Median fires per year",fmt_num(avcan_median_fires_per_year,2))
+        _kv("Total burn",f"{fmt_num(avcan_total_burn_ha,2)} ha ({fmt_num(avcan_total_burn_km,2)} km²)")
+        _kv("Average burn per year",f"{fmt_num(avcan_avg_burn_ha_per_year,2)} ha ({fmt_num(avcan_avg_burn_km_per_year,2)} km²)")
+        _kv("Median burn per year",f"{fmt_num(avcan_median_burn_ha_per_year,2)} ha ({fmt_num(avcan_median_burn_km_per_year,2)} km²)")
+        _kv("Average fire burn",f"{fmt_num(avcan_avg_fire_burn_ha,2)} ha ({fmt_num(avcan_avg_fire_burn_km,2)} km²)")
+        _kv("Median fire burn",f"{fmt_num(avcan_median_fire_burn_ha,2)} ha ({fmt_num(avcan_median_fire_burn_km,2)} km²)")
+        _kv("Largest fire",f"Unique ID {avcan_largest_id} in {avcan_lagest_fire_region}")
+        _kv("Largest fire burn",f"{fmt_num(avcan_largest_fire_burn_ha,2)} ha ({fmt_num(avcan_largest_fire_burn_km,2)} km²)")
 
-            fires, patches, regions = load_app_layers(
-                app_data_dir,
-                fires_path.stat().st_mtime,
-                patches_path.stat().st_mtime,
-                regions_path.stat().st_mtime,
-            )
-
-            # ========== Region =====================================
-            regions_sel = sorted(regions["Region"].dropna().unique().tolist()) if "Region" in regions.columns else []
-            if not regions_sel:
-                regions_sel = sorted(set(fires["Region"].dropna().unique()).union(set(patches["Region"].dropna().unique())))
-
-
-            st.markdown(f"- **Fires:** {len(fires):,} rows")
-            st.markdown(f"- **Stage A patches:** {len(patches):,} rows")
-            st.markdown(f"- **Regions:** {len(regions_sel):,} rows")
-            st.markdown("- **CRS:** `EPSG:4326` (WGS84 / web mapping)")
-            st.caption(f"Further computation is on going to produce Stage A (and planned Stage B) analysis records for all {len(regions):,} AvCan regions.")
-        except Exception as e:
-            st.warning(f"Could not load app layers for summary counts. ({e})")
-
+    
+    
+    # App Layers 
+    # =================================================================
     st.markdown("### App Layers")
     st.caption("These are the primary layers shown on the interactive map and used for filtering and summary statistics.")
-
+    
     # ========== NBAC Fires =====================================
 
     with st.expander("NBAC Fire Perimeters (Natural Resources Canada / CWFIS)", expanded=True):
@@ -137,6 +222,7 @@ def data_page() -> None:
         _kv("Downloaded as", "One ZIP file per year (NBAC burned area polygons).")
         _kv("Shipped to app as", "`data/processed/app/Fires.parquet` (GeoParquet; WGS84 / EPSG:4326)")
         st.markdown("**Source:** https://cwfis.cfs.nrcan.gc.ca")
+
 
     # ========== AvCan Regions =====================================
     
