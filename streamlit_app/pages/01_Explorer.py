@@ -54,12 +54,13 @@ def _safe_year_limits(fires_df, patches_df):
 # Constants
 # ===================================================================
 stage_a_cfg = load_yaml_config("stage_a.yaml")
-nbac_cfg = load_yaml_config("nbac_stats.yaml")
+sum_stats = load_yaml_config("summary_stats.yaml")
 
 thresholds = stage_a_cfg.get("thresholds", {}) or {}
 calibration = stage_a_cfg.get("calibration", {}) or {}
 
-data = nbac_cfg.get("data", {}) or {}
+data = sum_stats.get("data", {}) or {}
+nbac = sum_stats.get("nbac", {}) or {}
 
 # Value Extraction 
 # =================================================================
@@ -71,15 +72,15 @@ dnbr_value = thresholds.get("dnbr_value")
 pixel_conn = thresholds.get("connectivity")
 scale_value = thresholds.get("scale")
 
-# ========== Data =====================================
+# ========== NBAC Data =====================================
 min_year = data.get("min_year")
 max_year = data.get("max_year")
-avg_fire_count = data.get("avg_fire_count")
-avg_burn_area_ha = data.get("avg_burn_ha")
-avg_burn_km = data.get("avg_burn_km")
-total_burn_count = data.get("total_fire_count")
-total_burn_ha = data.get("total_burn_ha")
-total_burn_km = data.get("total_burn_km")
+avg_fire_count = nbac.get("avg_burn_ha_per_year")
+avg_burn_area_ha = nbac.get("avg_burn_ha_per_year")
+avg_burn_km = nbac.get("avg_burn_km2_per_year")
+total_burn_count = nbac.get("total_fires")
+total_burn_ha = nbac.get("total_burn_ha")
+total_burn_km = nbac.get("total_burn_km")
 
 
 # ===================================================================

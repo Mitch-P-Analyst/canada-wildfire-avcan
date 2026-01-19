@@ -71,9 +71,10 @@ def method_page() -> None:
     # ===================================================================
     # Body
     # ===================================================================
-    st.markdown("## Pipeline Overview")
+    st.markdown("## Github Project - Pipeline Overview")
     st.markdown("""
-            A high-level overview of the data pipeline used to produce the application’s map layers and summary statistics.
+            A high-level overview of the data pipeline used to produce the application’s map layers and summary statistics. 
+            Reproducable project and indepth README overview can be accessed at the following link: [https://github.com/Mitch-P-Analyst/canada-wildfire-avcan.git](Github Repository Link) 
 
             1. Download and process National Burn Area Composite (NBAC) file polygons.
                 - `scripts/01_download_nbacs.py`
@@ -81,21 +82,28 @@ def method_page() -> None:
                 - `scripts/02_download_statscan_provinces.py`
             3. Clean and merge annual NBAC polygons into a single master fire-perimeter dataset
                 - `scripts/03_clean_merge_nbac.py`
-            4. Spatially overlay NBAC fire perimeters with AvCan forecasting regions, and retain only fires within AvCan coverage.
+            4. Spatially overlay NBAC fire perimeters with AvCan forecasting regions and retain only fires within AvCan coverage.
                 - `scripts/04_avcan_fires_overlay.py`
-            5. Derive Burn Severity Patches (Stage A) in Google Earth Engine using dNBR and minimum patch-size thresholds.
-                - [Stage A – Google Earth Engine Zone Severity script](https://code.earthengine.google.com/12944605af9b45be19b9321bd5a77f50)
-            6. Build application-ready layers and aggregates, and export optimised outputs for web visualisation.
-                - `scripts/05_build_app_layers.py`
-            7. **Next Step** : (Stage B — planned): quantify vegetation regrowth (NDVI) and integrate forest inventory attributes (VRI) within Stage A patches
-            """)
+            5. Identify *Burn Severity Patches* withn AvCan fires with Google Earth Engine's python API. Looping through region/year and region/year/fireid arrangements.
+                - `scripts/05_stage_a1.py`
+            6. Compute and append applicable geographical metadata to stage A1's *Burn Severity Patches* with Google Earth Engine's python API.
+                - `scripts/06_stage_a2.py`
+            7. Compile and export batches of stage A2's Burn Severity Patches to Google Cloud Service and download to local.
+                - `scripts/07_stage_a_ee_export.py`
+            8. Build streamlit application-ready map explorer layers.
+                - `scripts/08_build_app_layers.py`
+
+            **Next Steps**
+            9. Stage B1 — Forest Inventory: Download Vegetation Resource Inventory (VRI) for each AvCan region. Overlaying patches with VRI inventory polygons, appending selected VRI attributes (e.g Canopy openness, species composition, density/biomass proxies)
+            10. Stage B2 - Regrowth Vegetation: Compute Normalised Difference Vegetation Index (NDVI) from post-fire year to current, assessing and callibrating a regrowth threshold for optimal patch candidates.
+                """)
     
     st.divider()
 
     st.markdown("## Burn Severity Patches (Stage A)")
     st.markdown(f"""
     #### Objective 
-    Identify and extract areas within AvCan fire polygons that meet thresholds of *burn severity patches*.
+    Identify and extract areas within AvCan fire polygons that meet callibrated thresholds. Identified areas are named "Burn Severity Zones" and candidates for winter recreational uses.
 
     #### Reference calibration
     {fmt(ref_note)} Intended use of *Burn Severity Patches* is to identify candidate areas for winter recreational activities, sometimes referred to as *"Burnt Tree Zones"*.  
@@ -119,7 +127,7 @@ def method_page() -> None:
 
     **Minimum connected patch area and pixel connectivity**
 
-    To reduce computational load within Google Earth Engine memory limits, and to focus on the largest candidate areas, Stage A applies a minimum patch area rule during patch identification. While Landsat imagery has a native 30 m × 30 m resolution, processing is performed at a coarser {fmt(scale_value)} scale during patch extraction to reduce computation and produce fewer, larger candidate patches.
+    To reduce computational load within Google Earth Engine memory limits, and to focus on the largest candidate areas, Stage A applies a minimum patch area rule during patch identification. While Landsat imagery has a native 30 m x 30 m resolution, processing is performed at a coarser {fmt(scale_value)} scale during patch extraction to reduce computation and produce fewer, larger candidate patches.
 
     Pixels that meet or exceed the dNBR threshold are grouped into contiguous patches using {fmt(pixel_conn)} connectivity (pixels are connected through both cardinal and diagonal neighbours). A {fmt(min_patch_area_ha)} hectare minimum patch size is then applied at the {fmt(scale_value)} processing scale, this corresponds to approximately {fmt(min_patch_pixels)} connected pixels.
 
@@ -137,7 +145,7 @@ def method_page() -> None:
     #### Objectives
                 
     - Identify areas within Burn Severity Patches that show limited vegetation regrowth by a selected “current year” (e.g., 2025), using a calibrated regrowth threshold to highlight open terrain.
-    - Intersect Burn Severity Patches with forest inventory data (VRI) to characterise forest structure and composition within each patch.
+    - Intersect Burn Severity Patches with forest Vegetation Resource Inventory to characterize forest structure and composition within each patch.
                 
     #### Data + Processes
                 
@@ -151,7 +159,10 @@ def method_page() -> None:
     - Species composition
     - Density/biomass proxies
     - Non-tree vegetation descriptors
+
+    #### Context
                 
+    Stage A Burn Severity Patches identifies areas within fire polygons that meet callibrated thresholds of burn severity and size to be candidates of "Burnt Tree Zones". However, Stage B Regrowth Vegetation + Forest Inventory aims to review the post-fire regrowth of these identified patches and use forest inventory data to assess the current status of identied patches for recreational use.
     
     """)
 
