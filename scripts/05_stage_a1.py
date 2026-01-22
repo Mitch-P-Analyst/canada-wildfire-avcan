@@ -23,13 +23,31 @@ if str(REPO_ROOT) not in sys.path:
     
 
 # ===================================================================
+# Components
+# ===================================================================
+from src.config_utils import read_yaml
+
+
+# ===================================================================
 # Configs
 # ===================================================================
 
-NO_FIRES_JSON = analysis_dir / "stage_A/stage_A1/stage_A1_no_fires_jobs.json"
+# Stage A thresholds 
+# =================================================================
+
+stage_a_yaml_path = Path( REPO_ROOT / "streamlit_app/config/stage_a.yaml")
+stage_a_yaml = read_yaml(stage_a_yaml_path)
+
+thresholds = stage_a_yaml.get("thresholds")
+
+dnbr_min =  thresholds.get("dnbr_min")
+min_patch_area_ha = thresholds.get("min_patch_area_ha")
+
 
 # Google Earth Engine  
 # =================================================================
+NO_FIRES_JSON = analysis_dir / "stage_A/stage_A1/stage_A1_no_fires_jobs.json"
+
 AVCAN_TABLE_ID = "projects/wildfire-canada-475322/assets/AvCan_Wildfire_Explorer/AvCan_fires_1990_2024"
 OUT_FOLDER     = "projects/wildfire-canada-475322/assets/AvCan_Wildfire_Explorer/Stage_A1"
 
@@ -63,7 +81,6 @@ Assessment Parameters
 
     """)
 
-
 # ========== Processing =====================================
 
 # ======= Earth Engine Memory Mitigation Parameters =======#
@@ -80,8 +97,8 @@ VECT_SCALE = 45  # retry ladder: 30 → 45 → 60 → 90 MAX
 
 # ======= Constants =======#
 CLOUD_COVER_MAX = 60
-HIGH_THR = 0.20
-MIN_PATCH_HA = 10.0
+HIGH_THR = dnbr_min
+MIN_PATCH_HA = min_patch_area_ha
 MAX_PATCH_PIX = round(((MIN_PATCH_HA * 1e4) / (VECT_SCALE * VECT_SCALE)),2)
 MAX_PATCH_SIZE_PIX = 1024
 EIGHT_CONNECTED = True
