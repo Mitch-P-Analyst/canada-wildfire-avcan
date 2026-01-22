@@ -1,8 +1,16 @@
+# ===================================================================
+# Imports
+# ===================================================================
+
+
 from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict, Optional
 import yaml
 
+# ===================================================================
+# Utility Functions
+# ===================================================================
 def read_yaml(path: Path, *, default: Optional[Dict[str, Any]] = None, strict: bool = False) -> Dict[str, Any]:
     if not path.exists():
         if strict:
