@@ -33,7 +33,7 @@ def data_page() -> None:
     # Intro 
     # =================================================================
     st.title("Data")
-    st.info("Upate In Progress (Jan 19th). Updating pipeline structure and summary statistics")
+    # st.info("Upate In Progress (Jan 19th). Updating pipeline structure and summary statistics")
     st.divider()
 
     st.markdown("## Overview")
@@ -268,14 +268,11 @@ def data_page() -> None:
     # ========== Stage A =====================================
     
     with st.expander("Burn Severity Patches (Stage A)", expanded=True):
-        _kv("What it is", "Derived burn-severity patches clipped to AvCan regions, produced from satellite-based severity logic and minimum patch-size filtering.")
-        _kv("Why it’s used", "Represents candidate ‘burnt tree zone’ patches based on calibrated severity and patch-size thresholds.")
-        _kv("Calibration reference", f"{ref_region} / Fire ID {ref_gid}" if (ref_region or ref_gid) else "Defined in stage_a.yaml")
+        _kv("What it is", "Stage A is a **screening heuristic** that identifies post-fire polygons that meet a calibrated Landsat spectral severity threshold and exceed a minimum patch size threshold. The patches are then enriched with terrain metadata (elevation, slope, and aspect variability)")
+        _kv("How to interpret","These patches are **candidates for follow-on verification**, not a confirmation of “open trees,” “good skiing,” or safety. The layer can be used to support exploratory mapping and analysis of landscape change, and to guide where deeper review may be worthwhile (e.g., reviewing current satellite imagery, consulting local knowledge, land managers, and professional guides).")
+        _kv("Why it’s used", "Highlights post-fire patches meeting configured severity and patch-size thresholds as **candidates for follow-on verification** (exploratory screening layer; not a suitability or safety layer).")
+        _kv("Calibration and limitations",f"Stage A thresholds are calibrated as a practical, repeatable approach to highlight potential canopy-loss conditions using widely used spectral proxies. Calibration is anchored to a reference fire and region ({ref_region} / Fire ID {ref_gid}" if (ref_region or ref_gid) else 'Defined in stage_a.yaml'"). Results are sensitive to Landsat spatial resolution, seasonal composite window, regional vegetation differences, and timing of post-fire imagery. dNBR is a severity proxy and is not a direct measurement of canopy openness, hazard, access, or suitability.")
         _kv("Shipped to app as", "`data/processed/app/Stage_A2_Burn_Severity_Patches.parquet` (GeoParquet; WGS84 / EPSG:4326)")
-
-        if ref_note:
-            _kv("Calibration note", ref_note)
-
         st.markdown("**Thresholds (from `stage_a.yaml`):**")
         t_items = []
         if dnbr_min is not None:
@@ -328,15 +325,6 @@ def data_page() -> None:
         ])
 
     st.divider()
-
-    # Limitations 
-    # =================================================================
-    st.markdown("## Notes and limitations")
-    _bullet_list([
-        "Burn Severity Patch thresholds are calibrated to a reference fire and are intended as an initial heuristic. Future work can broaden calibration across multiple representative fires.",
-        "AvCan forecast regions are operational forecasting zones (not administrative boundaries).",
-        "All layers are reprojected for web mapping (WGS84 / EPSG:4326) for consistent display in the app.",
-    ])
 
 # ===================================================================
 # Run Data Page Function

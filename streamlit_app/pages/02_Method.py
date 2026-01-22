@@ -14,6 +14,7 @@ from streamlit_folium import st_folium
 # ===================================================================
 from components.loaders import load_yaml_config
 from components.loaders import fmt_int, fmt_num, fmt_pct, fmt_str
+from components.loaders import _bullet_kv
 
 # ===================================================================
 # Directories
@@ -39,12 +40,16 @@ def method_page() -> None:
     # Introduction
     # ===================================================================
     st.title("Method & Processes")
+    st.caption("Important: The Burn Severity Patches (Stage A) layer is a screening heuristic that highlights candidate areas for follow-on verification (e.g., current imagery review, local knowledge, and appropriate professional guidance). It is not a safety product and must not be used for route selection, terrain selection, or trip planning decisions.")
     st.divider()
 
     st.markdown("## Overview")
     st.markdown("""
     This page documents the end-to-end workflow used to build the AvCan Wildfire Explorer map layers, from sourcing and cleaning NBAC fire perimeters, to intersecting fires with Avalanche Canada forecast regions, to generating Stage A Burn Severity Patches and exporting app-ready GeoParquet layers. It outlines the key processing steps, threshold logic, and calibration decisions that underpin the map layers and summary statistics shown in the Explorer.                
-    """)
+    
+    Stage A outputs should be interpreted as a **screening layer** to support exploratory mapping and prioritization of follow-up review. They do not confirm on-the-ground conditions, access, hazards, or suitability.           
+                
+                """)
 
     # ===================================================================
     # Constants
@@ -75,6 +80,9 @@ def method_page() -> None:
     # ===================================================================
     # Body
     # ===================================================================
+    
+    # Data Pipeline 
+    # =================================================================
     st.markdown("## Data Pipeline")
     st.markdown("""
             A high-level overview of the data pipeline used to produce the application’s map layers and summary statistics. 
@@ -107,20 +115,41 @@ def method_page() -> None:
     
     st.divider()
 
+    # Stage A Method 
+    # =================================================================
     st.markdown("## Burn Severity Patches (Stage A)")
+
+    # ========== Objective =====================================
     st.markdown(f"""
     #### Objective 
-    Identify and extract areas within AvCan fire polygons that meet callibrated thresholds. Identified areas are named "Burn Severity Zones" and candidates for winter recreational use.
-
+    Identify and extract areas within AvCan filtered fire polygons that meet calibrated spectral severity and minimum patch-size thresholds. The resulting polygons (“Burn Severity Patches”) are intended as an initial screening heuristic to highlight candidate areas for follow-on verification (e.g., review with current imagery, local knowledge, and appropriate professional guidance), not as a confirmation of conditions or suitability.
+                
+    """)
+    # ========== Calibration =====================================
+    st.markdown(f"""
     #### Reference calibration
-    {fmt_str(ref_note)} Intended use of *Burn Severity Patches* is to identify candidate areas for winter recreational activities, sometimes referred to as *"burnt tree zones"*.  
-    Calibration and resulting thresholds reference **{fmt_str(ref_region)}** fire GID **{fmt_str(ref_gid)}**, selected due to reported favourable winter recreational conditions.
 
+    {fmt_str(ref_note)} Calibration and resulting thresholds reference **{fmt_str(ref_region)}** fire GID **{fmt_str(ref_gid)}**
+
+    This calibration is intended to support repeatable screening of candidate patches for further review. It is not a validated ecological classification and does not guarantee canopy openness, access, hazard conditions, or suitability. Future work can broaden calibration across multiple representative fires and regions, and Stage B (Regrowth Vegetation + Forest Inventory) will add additional context for interpretation.
+
+    In some winter recreation communities, post-fire open-canopy areas may be informally referred to as ‘burnt tree zones’. This project does not classify or certify such zones.
+
+    """)
+    # ========== Thresholds =====================================
+    st.markdown("#### Threshold")
+
+    threshold_bullets = [
+        ("Difference Normalised Burn Ratio (dNBR) minimum", fmt_num(dnbr_min,1)),
+        ("Minimum connected patch area (ha)",fmt_int(min_patch_area_ha)),
+        ("Pixel connectivity",fmt_str(pixel_conn))
+    ]
     #### Thresholds 
-    - Difference Normalised Burn Ratio (dNBR) minimum: **{fmt_num(dnbr_min,1)}**
-    - Minimum connected patch area (ha): **{fmt_int(min_patch_area_ha)}**
-    - Pixel connectivity: **{fmt_str(pixel_conn)}**
+    _bullet_kv(threshold_bullets)
 
+    # ========== Context =====================================
+    st.markdown(f"""
+    
     #### Context
     
     **Difference Normalized Burn Ratio (dNBR)**
@@ -147,13 +176,17 @@ def method_page() -> None:
 
     st.divider()
 
+    # Stage B 
+    # =================================================================
+    
+    
     st.markdown("## Regrowth Vegetation + Forest Inventory (Stage B - Planned)")
     st.markdown(f"""
     #### Objectives
                 
-    - Identify areas within Burn Severity Patches that show limited vegetation regrowth by a selected “current year” (e.g., 2025), using a calibrated regrowth threshold to highlight open terrain.
-    - Intersect Burn Severity Patches with forest Vegetation Resource Inventory to characterize forest structure and composition within each patch.
-                
+    - Identify Stage A patches that show limited post-fire vegetation regrowth by a selected “current year” (e.g., 2025), using a calibrated regrowth threshold as a proxy for persistent canopy loss (screening signal only)  
+    - Intersect Stage A patches with Vegetation Resource Inventory (VRI) to characterize forest structure and composition within each patch (e.g., canopy closure, height class, species composition, density/biomass proxies).
+                     
     #### Data + Processes
                 
     Landsat imagery for the Normalised Difference Vegetation Index (NDVI)
@@ -169,8 +202,7 @@ def method_page() -> None:
 
     #### Context
                 
-    Stage A Burn Severity Patches identifies areas within fire polygons that meet callibrated thresholds of burn severity and size to be candidates of "Burnt Tree Zones". However, Stage B Regrowth Vegetation + Forest Inventory aims to review the post-fire regrowth of these identified patches and use forest inventory data to assess the current status of identied patches for recreational use.
-    
+    Stage A identifies candidate patches that meet calibrated severity and minimum size thresholds as inputs for further review. Stage B (Regrowth Vegetation + Forest Inventory) is planned to add additional interpretation context by evaluating post-fire regrowth signals and incorporating forest inventory attributes. The goal is to better prioritize and interpret candidate patches for follow-on verification.
     """)
 
 # ===================================================================
