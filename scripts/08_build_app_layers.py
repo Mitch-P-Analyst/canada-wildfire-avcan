@@ -192,7 +192,7 @@ avcan_regions = round_numeric_columns(avcan_regions, 2, exclude=["FireID","Uniqu
 print(' Numeric Rounding.')
 
 # ======= Stage A Unique IDs =======#
-stage_A_polys["Patch_Unique_Id"] = (
+stage_A_polys["Unique Patch ID"] = (
     stage_A_polys["Unique Fire ID (gid)"].astype(str) + "_" +
     stage_A_polys["Patch ID"].astype(str)
 )

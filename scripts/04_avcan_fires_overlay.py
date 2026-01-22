@@ -69,9 +69,9 @@ def zip_shapefile_components(files, zip_path):
 # Avalanche Canada polygons (GeoJSON)
 # =================================================================
 print(f'Loading Avalanche Canada (AvCan) regions shapefile...')
-avcan_path = REPO_ROOT / "data/external/avalanche_canada/canadian_subregions.geojson"
-avcan_shapes = gpd.read_file(avcan_path)
-print(f" Avalanche Canada Regions loaded. {avcan_shapes.crs}\n")
+AvCan_path = REPO_ROOT / "data/external/avalanche_canada/canadian_subregions.geojson"
+AvCan_shapes = gpd.read_file(AvCan_path)
+print(f" Avalanche Canada Regions loaded. {AvCan_shapes.crs}\n")
 
 # NBAC / BC fire perimeters 
 # =================================================================
@@ -116,14 +116,14 @@ print(f" Canadian Province / Territory boundaries loaded. {provinces.crs}\n")
 # AvCanada Ski Regions 
 # =================================================================
 print('Isolate all AvCan regions.')
-avcan_cleaning = avcan_shapes.copy()
+AvCan_cleaning = AvCan_shapes.copy()
 print('AvCan cleaning...')
 colnames = {
     'polygon_name':'subregion',
     'reference_region':'region'
 }
-avcan_cleaning = avcan_cleaning.rename(columns=colnames)
-regions = avcan_cleaning[["region","subregion", "geometry"]]   # adjust column names as needed
+AvCan_cleaning = AvCan_cleaning.rename(columns=colnames)
+regions = AvCan_cleaning[["region","subregion", "geometry"]]   # adjust column names as needed
 
 
 print(" Classifying AvCan subregions to Canadian Province / Territory...")
@@ -159,11 +159,11 @@ for col in ["region", "subregion"]:
     )
 
 # ========== Make this your cleaned AvCan layer =====================================
-avcan_clean = regions_with_admin[["region", "subregion", "prov_terr", "geometry"]].copy()
+AvCan_clean = regions_with_admin[["region", "subregion", "prov_terr", "geometry"]].copy()
 
 print("AvCan regions cleaned.")
 
-missing = avcan_clean[avcan_clean["prov_terr"].isna()][["region", "subregion"]]
+missing = AvCan_clean[AvCan_clean["prov_terr"].isna()][["region", "subregion"]]
 if missing.empty:
     print(" All subregions have a province/territory.")
 else:
@@ -275,7 +275,7 @@ AvCan_regions_path_geojson = regions_out_dir / f"AvCan_cleaned_subregions.geojso
 print('Exporting AvCan subregions GeoJSON...')
 
 try:
-    avcan_clean.to_file(AvCan_regions_path_geojson, driver="GeoJSON")
+    AvCan_clean.to_file(AvCan_regions_path_geojson, driver="GeoJSON")
     print(f'AvCan cleaned subregions GeoJSON export successful: {AvCan_regions_path_geojson}')
 except Exception as e:
     raise RuntimeError(f'AvCan cleaned subregions GeoJSON failed to export: {e}')
@@ -285,7 +285,7 @@ AvCan_regions_path_shp = regions_out_dir / f"AvCan_cleaned_subregions.shp"
 print('\nExporting AvCan regions Shapefile...')
 
 try:
-    avcan_clean.to_file(AvCan_regions_path_shp, driver="ESRI Shapefile")
+    AvCan_clean.to_file(AvCan_regions_path_shp, driver="ESRI Shapefile")
     print(f' Shapefile export successful: {AvCan_regions_path_shp}')
 except Exception as e:
     raise RuntimeError(f' AvCan regions Shapefile failed to export: {e}\n')

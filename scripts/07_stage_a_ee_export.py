@@ -1,4 +1,6 @@
-#!/usr/bin/env python3
+# ===================================================================
+# Overview
+# ===================================================================
 """
 Stage_A2 batch export to Google Cloud Storage (GeoJSON).
 
@@ -9,24 +11,34 @@ Stage_A2 batch export to Google Cloud Storage (GeoJSON).
 - Throttles + polls tasks
 """
 
+# ===================================================================
+# Imports
+# ===================================================================
 from __future__ import annotations
 
 import time
 from typing import List, Dict, Any
 import ee
 
-
-# ==============================
+# ===================================================================
 # CONFIG
-# ==============================
+# ===================================================================
+
+# Google Cloud Storage (GCS)
+# =================================================================
+
+
+# ========== Outputs for Google Earth Engine exports =====================================
+# GCS Project
 PROJECT_ID = "wildfire-canada-475322"
 
+# Project folder
 STAGE_A2_FOLDER = "projects/wildfire-canada-475322/assets/AvCan_Wildfire_Explorer/Stage_A2"
 
-# REQUIRED: your bucket name (no gs:// prefix)
+# GCS bucket
 GCS_BUCKET = "avcan_wildfire_explorer_stage_a"
 
-# Optional "folder" path inside the bucket
+# Bucket folder
 GCS_PREFIX = "exports/stage_A2"
 
 # Batch sizing: start conservative; lower if exports shard or fail
@@ -37,18 +49,16 @@ MAX_ACTIVE_TASKS = 4
 SLEEP_BETWEEN_SUBMISSIONS = 2
 POLL_SECONDS = 30
 
-
-# ==============================
-# EE INIT
-# ==============================
+# ===================================================================
+# EE Intialized
+# ===================================================================
 print("\nInitializing Google Earth Engine...")
 ee.Initialize(project=PROJECT_ID)
 print("Complete.\n")
 
-
-# ==============================
-# HELPERS
-# ==============================
+# ===================================================================
+# Helper Functions
+# ===================================================================
 def list_table_assets(parent_folder: str) -> List[str]:
     """Return asset IDs of TABLE assets under a parent folder."""
     try:
@@ -61,6 +71,9 @@ def list_table_assets(parent_folder: str) -> List[str]:
 
 
 def chunk_list(xs: List[str], size: int) -> List[List[str]]:
+    """
+    Chunk EE assets
+    """
     return [xs[i:i + size] for i in range(0, len(xs), size)]
 
 
@@ -111,9 +124,9 @@ def merge_assets_client_side(asset_ids: List[str]) -> ee.FeatureCollection:
         merged = merged.merge(ee.FeatureCollection(aid))
     return merged
 
-# ==============================
-# MAIN
-# ==============================
+# ===================================================================
+# Main Function
+# ===================================================================
 def main() -> None:
     asset_ids = sorted(list_table_assets(STAGE_A2_FOLDER))
     if not asset_ids:
