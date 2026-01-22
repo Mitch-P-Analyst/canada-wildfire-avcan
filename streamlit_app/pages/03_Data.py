@@ -9,6 +9,7 @@ import streamlit as st
 # ===================================================================
 from components.loaders import load_yaml_config
 from components.loaders import load_app_layers, app_data_dir
+from components.loaders import fmt_int, fmt_num, fmt_pct , _kv, _bullet_list, _bullet_kv
 
 # ===================================================================
 # Page Config
@@ -22,17 +23,6 @@ st.set_page_config(
 # ===================================================================
 # Helpers
 # ===================================================================
-def _bullet_list(items: list[str]) -> None:
-    st.markdown("\n".join([f"- {x}" for x in items]))
-
-def _kv(label: str, value: str) -> None:
-    st.markdown(f"**{label}:** {value}")
-
-def fmt_int(n):
-    return "—" if n is None else f"{int(n):,}"
-
-def fmt_num(x, decimals=0):
-    return "—" if x is None else f"{x:,.{decimals}f}"
 
 
 # ===================================================================
@@ -43,12 +33,11 @@ def data_page() -> None:
     # Intro 
     # =================================================================
     st.title("Data")
-    st.write(
-        "This page describes the datasets used to produce the AvCan Wildfire Explorer, "
-        "including both external sources and derived project layers."
-    )
     st.info("Upate In Progress (Jan 19th). Updating pipeline structure and summary statistics")
     st.divider()
+
+    st.markdown("## Overview")
+    st.markdown("This page documents the datasets and map layers used by the AvCan Wildfire Explorer. It describes what each layer represents, where it was sourced from, and how it is packaged for the application. It also provides project-wide summary statistics for each core dataset to complement the region-filtered metrics shown in the Explorer.")
 
    # Stage A config (derived layer metadata) 
    # =================================================================
@@ -93,6 +82,10 @@ def data_page() -> None:
     nbac_largest_id = nbac.get("largest_fire_id")
     nbac_largest_fire_prov = nbac.get("largest_fire_province")
     nbac_largest_fire_burn_ha = nbac.get("largest_fire_burn_ha")
+    nbac_largest_fire_burn_km = nbac.get("largest_fire_burn_km2")
+    nbac_natural_cause = nbac.get("natural_cause")
+    nbac_human_cause = nbac.get("human_cause")
+    nbac_undetermined_cause = nbac.get("undetermined_cause")
 
     # ========== avcan =====================================
     avcan_total_fires = avcan.get("total_fires")
@@ -115,6 +108,9 @@ def data_page() -> None:
     avcan_median_fire_burn_km = avcan.get("median_burn_per_fire_km2")
     avcan_90_percentile_burn_ha = avcan.get("p90_burn_ha_per_fire")
     avcan_95_percentile_burn_ha = avcan.get("p95_burn_ha_per_fire")
+    avcan_natural_cause = avcan.get("natural_cause")
+    avcan_human_cause = avcan.get("human_cause")
+    avcan_undetermined_cause = avcan.get("undetermined_cause")
 
     # ========== stage_A =====================================
     A_total_patches = stage_a_data.get("total_patches")
@@ -148,69 +144,100 @@ def data_page() -> None:
     A_median_elevation  = stage_a_data.get("elev_mean_m_median")
     
     
-
-   # Core Layers 
-   # =================================================================
-    st.markdown("## Core Explorer layers")
-
-    # ========== App Layer Files =====================================
-    st.markdown("### App files")
-    st.caption("Processed layers loaded by the Streamlit app (GeoParquet, reprojected to WGS84 / EPSG:4326).")
-    st.markdown("""
-    - **AvCan Region Perimeters:** `data/processed/app/Regions.parquet`
-    - **Fire Perimeters:** `data/processed/app/Fires.parquet`
-    - **Burn Severity Patches (Stage A):** `data/processed/app/Stage_A2_Burn_Severity_Patches.parquet`
-    - **Regrowth Vegetation + Forest Inventory (Stage B - planned):** `data/processed/app/Stage_B_Regrowth_Patches.parquet`
-    """)
-
-    # ========== Data Lineage =====================================
-    st.markdown("### Data lineage (raw → derived → app)")
-    st.caption("High-level overview.")
-
-    _bullet_list([
-        "Raw: NBAC annual burned-area polygons (Natural Resources Canada / CWFIS).",
-        "Raw: Avalanche Canada forecast polygons (regions/subregions).",
-        "Python preprocessing: spatial overlay + labeling (NBAC + AvCan) → exported as an Earth Engine table asset.",
-        "Google Earth Engine Python API: Stage A severity patches derived using dNBR + patch-size thresholds.",
-        "Python post-processing: exported outputs normalized + saved as GeoParquet app layers (EPSG:4326).",
-    ])
-
+    # Datasets 
+    # =================================================================
+    st.markdown("## Dataset summary")
+    
     # ========== Summary Statistics =====================================
     
-    st.markdown("### Data Summary Statistics**")
-    st.markdown(f"""
-    The following data encompass summary statistics for {n_years} years, between {min_year} → {max_year}, for all datasets cleaned and computed throughout this proejct.
+    st.markdown("### Summary Statistics")
+    st.caption(f"""
+    Summary statistics of the available {n_years} years ({min_year} → {max_year}) for the accessed and derived datasets computed throughout this project.
                 """)
 
     # ======= NBAC =======#
     with st.expander("NBAC Fires",expanded=False):
-        _kv("Total fires",fmt_int(nbac_total_fires))
-        _kv("Average fires per year", fmt_num(nbac_avg_fires_per_year,2))
-        _kv("Total burn",f"{fmt_num(nbac_burn_ha,2)} ha ({fmt_num(nbac_burn_km,2)} km²)")
-        _kv("Average burn per year", f"{fmt_num(nbac_avg_burn_ha_per_year,2)} ha ({fmt_num(nbac_burn_km,2)} km²)")
-        _kv("Average fire burn",f"{fmt_num(nbac_avg_fire_burn_ha,2)} ha ({fmt_num(nbac_avg_fire_burn_km,2)} km²)")
-        _kv("Largest fire",f"Unique ID {nbac_largest_id} in {nbac_largest_fire_prov}")
-        _kv("Largest fire burn (ha)", fmt_num(nbac_largest_fire_burn_ha,2))
+        nbac_fires_list = [
+        ("Total fires",fmt_int(nbac_total_fires)),
+        ("Average fires per year", fmt_num(nbac_avg_fires_per_year,2)),
+        ("Total burn area",f"{fmt_num(nbac_burn_ha,2)} ha ({fmt_num(nbac_burn_km,2)} km²)"),
+        ("Average burn area per year", f"{fmt_num(nbac_avg_burn_ha_per_year,2)} ha ({fmt_num(nbac_burn_km,2)} km²)"),
+        ("Average fire burn area",f"{fmt_num(nbac_avg_fire_burn_ha,2)} ha ({fmt_num(nbac_avg_fire_burn_km,2)} km²)"),
+        ("Largest fire",f"Unique ID {nbac_largest_id} in {nbac_largest_fire_prov}"),
+        ("Largest fire burn area",f"{fmt_num(nbac_largest_fire_burn_ha,2)} ha ({fmt_num(nbac_largest_fire_burn_km,2)} km²)"),
+        ("Natural caused", fmt_pct(nbac_natural_cause,2)),
+        ("Human caused", fmt_pct(nbac_human_cause,2)),
+        ("Undetermined caused", fmt_pct(nbac_undetermined_cause,2))
+        ]
+        
+        _bullet_kv(nbac_fires_list)
 
     # ======= Avcan =======#
-    with st.expander("Avalance Canada Fires",expanded = False):
-        _kv("Total fires",fmt_int(avcan_total_fires))
-        _kv("Average fires per year",fmt_num(avcan_avg_fires_per_year,2))
-        _kv("Median fires per year",fmt_num(avcan_median_fires_per_year,2))
-        _kv("Total burn",f"{fmt_num(avcan_total_burn_ha,2)} ha ({fmt_num(avcan_total_burn_km,2)} km²)")
-        _kv("Average burn per year",f"{fmt_num(avcan_avg_burn_ha_per_year,2)} ha ({fmt_num(avcan_avg_burn_km_per_year,2)} km²)")
-        _kv("Median burn per year",f"{fmt_num(avcan_median_burn_ha_per_year,2)} ha ({fmt_num(avcan_median_burn_km_per_year,2)} km²)")
-        _kv("Average fire burn",f"{fmt_num(avcan_avg_fire_burn_ha,2)} ha ({fmt_num(avcan_avg_fire_burn_km,2)} km²)")
-        _kv("Median fire burn",f"{fmt_num(avcan_median_fire_burn_ha,2)} ha ({fmt_num(avcan_median_fire_burn_km,2)} km²)")
-        _kv("Largest fire",f"Unique ID {avcan_largest_id} in {avcan_lagest_fire_region}")
-        _kv("Largest fire burn",f"{fmt_num(avcan_largest_fire_burn_ha,2)} ha ({fmt_num(avcan_largest_fire_burn_km,2)} km²)")
+    with st.expander("Avalanche Canada Fires",expanded = False):
+        regions_str = ", ".join(avcan_lagest_fire_region)  # "Jasper" or "Region A, Region B"
+        avcan_fires_list = [
+        ("Total fires",fmt_int(avcan_total_fires)),
+        ("Average fires per year",fmt_num(avcan_avg_fires_per_year,2)),
+        ("Median fires per year",fmt_num(avcan_median_fires_per_year,2)),
+        ("Total burn area",f"{fmt_num(avcan_total_burn_ha,2)} ha ({fmt_num(avcan_total_burn_km,2)} km²)"),
+        ("Average burn area per year",f"{fmt_num(avcan_avg_burn_ha_per_year,2)} ha ({fmt_num(avcan_avg_burn_km_per_year,2)} km²)"),
+        ("Median burn area per year",f"{fmt_num(avcan_median_burn_ha_per_year,2)} ha ({fmt_num(avcan_median_burn_km_per_year,2)} km²)"),
+        ("Average fire burn area",f"{fmt_num(avcan_avg_fire_burn_ha,2)} ha ({fmt_num(avcan_avg_fire_burn_km,2)} km²)"),
+        ("Median fire burn area",f"{fmt_num(avcan_median_fire_burn_ha,2)} ha ({fmt_num(avcan_median_fire_burn_km,2)} km²)"),
+    
+        ("Largest fire",f"Unique ID {avcan_largest_id} in {regions_str}"),
+        ("Largest fire burn area",f"{fmt_num(avcan_largest_fire_burn_ha,2)} ha ({fmt_num(avcan_largest_fire_burn_km,2)} km²)"),
 
+        ("Natural caused", fmt_pct(avcan_natural_cause,2)),
+        ("Human caused", fmt_pct(avcan_human_cause,2)),
+        ("Undetermined caused", fmt_pct(avcan_undetermined_cause,2))
+        ]
+        _bullet_kv(avcan_fires_list)
+
+    # ======= Stage A =======#
+    with st.expander("Burn Severity Patches (Stage A)", expanded=False):
+        stage_a_list = [
+        ("Total patches",fmt_int(A_total_patches)),
+        ("Total fires with patches",fmt_int(A_total_fires_w_patches)),
+        ("Average patches per Stage A fire (fires with patches)",fmt_num(A_avg_patches_per_fire_w_patches,2)),
+        ("Median patches per Stage A fire (fires with patches)",fmt_num(A_median_patches_per_fire_w_patches,2)),
+        ("Average patches per AvCan fire (All Avcan fires)",fmt_num(A_avg_patches_per_avcan_fire,2)),
+        ("Total patches burn area",f"{fmt_num(A_total_patch_ha,2)} ha"),
+        ("Average patch burn area",f"{fmt_num(A_avg_patch_ha,2)} ha"),
+        ("Median patch burn area", f"{fmt_num(A_median_patch_ha,2)} ha"),
+        ("95th percentile patch burn area", f"{fmt_num(A_95_percentile_patch_ha,2)} ha"),
+        ("Largest patch", f"Unique ID {A_largest_patch_id} in {A_largest_patch_region}"),
+        ("Largest patch burn area",f"{fmt_num(A_largest_patch_ha,2)} ha ({fmt_num(A_largest_patch_km,2)} km²)"),
+        ("Median of elevation means",f"{fmt_num(A_median_elevation,2)} m"),
+        ("Median of slope degree means",f"{fmt_num(A_median_slope_deg,2)}%"),
+
+        ("Percentage of Avcan fires with Burn Severity Patches",f"{fmt_pct(A_pct_avcan_fires_w_patches,2)}"),
+        ("Percentage of Avcan fire burn area identified as Burn Severity Patches",f"{fmt_pct(A_pct_avcan_burn_in_patches,2)}"),
+        ("Fire year that produced the highest number of patches",f" {A_max_patch_year} with {fmt_num(A_max_patch_year_ha)} ha burned"),
+        ("Region with largest patches burn area",f"{A_top_region_patch_ha}"),
+
+        ("Percentage of patches with mixed aspect", fmt_pct(A_patch_mixed_aspect_pct,2))
+        ]
+        _bullet_kv(stage_a_list)
     
-    
+    st.divider()
+   # Core Layers 
+   # =================================================================
+    st.markdown("## Explorer Layers")
+
+    # ========== App Layer Files =====================================
+    st.markdown("### App files")
+    st.caption("Primary layers displayed in the Explorer and used for filtering and summary statistics.")
+    st.markdown("""
+    - **AvCan Region Perimeters:** `data/processed/app/Regions.parquet`
+    - **Fire Perimeters:** `data/processed/app/Fires.parquet`
+    - **Burn Severity Patches (Stage A):** `data/processed/app/Stage_A2_Burn_Severity_Patches.parquet`
+    """)
+
     # App Layers 
     # =================================================================
-    st.markdown("### App Layers")
-    st.caption("These are the primary layers shown on the interactive map and used for filtering and summary statistics.")
+    st.markdown("### Layer Descriptions")
+    st.caption("The primary layers shown on the interactive map and used for filtering and summary statistics.")
     
     # ========== NBAC Fires =====================================
 
@@ -220,6 +247,7 @@ def data_page() -> None:
         _kv("Why it’s used", "Provides the fire perimeter geometry that is filtered to Avalanche Canada regions.")
         _kv("Temporal coverage", "Annual records (project currently uses the years processed into the app layers).")
         _kv("Downloaded as", "One ZIP file per year (NBAC burned area polygons).")
+        _kv("Manpulated", "NBAC fire perimeters were intersected with Avalanche Canada forecast regions and split by subregions to create an AvCan-filtered fire-perimeter layer (NBAC fires within AvCan regions only).")
         _kv("Shipped to app as", "`data/processed/app/Fires.parquet` (GeoParquet; WGS84 / EPSG:4326)")
         st.markdown("**Source:** https://cwfis.cfs.nrcan.gc.ca")
 
@@ -261,13 +289,7 @@ def data_page() -> None:
         if time_start or time_end:
             _kv("Seasonal window used for composites", f"{time_start} to {time_end}".replace("_", " "))
 
-        _kv("Produced in", "Google Earth Engine Console.")
-        stage_A_items = [
-        "[AvCan Region Fires (1990–2024) asset](https://code.earthengine.google.com/?asset=projects/wildfire-canada-475322/assets/AvCan_fires_1990_2024)",
-        "[Stage A – Zone Severity script](https://code.earthengine.google.com/12944605af9b45be19b9321bd5a77f50)",
-        "[Stage A – Export script](https://code.earthengine.google.com/916cd4802cc42e65f8b596f9932e46d8)",
-        ]
-        _bullet_list(stage_A_items)
+        _kv("Produced with", "Google Earth Engine python API.")
     # ========== Stage B =====================================
     
     
@@ -281,13 +303,13 @@ def data_page() -> None:
             "Forest inventory attributes (e.g., canopy closure, height class, stand age class) where available",
             "Spectral indices (e.g., NDVI) as supporting evidence for greenness / vigor within a consistent seasonal window",
         ])
-        st.markdown("**Planned output:** `data/processed/app/Stage_B_Regrowth_Patches.parquet` (to be added as a toggleable layer and summary metric).")
+        st.markdown("**Planned output:** `data/processed/app/Stage_B_Regrowth_Patches.parquet`")
 
     st.divider()
 
    # Supporting / context layers 
    # =================================================================
-    st.markdown("## Supporting / context datasets")
+    st.markdown("## Supporting and Context Datasets")
     st.caption("These datasets support preprocessing, validation, and cartographic context, but are not necessarily displayed as primary Explorer layers.")
 
     with st.expander("Statistics Canada – Provincial / Territorial boundaries (2021)", expanded=False):
@@ -310,8 +332,7 @@ def data_page() -> None:
     # =================================================================
     st.markdown("## Notes and limitations")
     _bullet_list([
-        "Stage A thresholds are calibrated to a reference fire and are intended as an initial heuristic; future work can broaden calibration across multiple representative fires.",
-        "NDVI is a spectral proxy for greenness/vigor and does not directly measure canopy closure, height, or stand age.",
+        "Burn Severity Patch thresholds are calibrated to a reference fire and are intended as an initial heuristic. Future work can broaden calibration across multiple representative fires.",
         "AvCan forecast regions are operational forecasting zones (not administrative boundaries).",
         "All layers are reprojected for web mapping (WGS84 / EPSG:4326) for consistent display in the app.",
     ])

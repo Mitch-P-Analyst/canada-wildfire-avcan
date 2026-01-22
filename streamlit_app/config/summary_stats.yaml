@@ -18,6 +18,9 @@ nbac:
   largest_fire_province: Northwest Territories
   largest_fire_burn_ha: 1146936.731336
   largest_fire_burn_km2: 11469.367313359999
+  natural_cause: 0.544906098546042
+  human_cause: 0.2753937802907916
+  undetermined_cause: 0.1797001211631664
 avcan:
   total_fires: 3838
   avg_fires_per_year: 109.65714285714286
@@ -31,12 +34,7 @@ avcan:
   largest_fire_id: '2024_451'
   largest_fire_province: Alberta
   largest_fire_regions:
-  - J
-  - a
-  - e
-  - p
-  - r
-  - s
+  - Jasper
   largest_fire_burn_ha: 126578.391614
   largest_fire_burn_km2: 1265.78391614
   median_burn_per_fire_ha: 12.478307959
@@ -45,6 +43,9 @@ avcan:
   avg_burn_ha_per_fire_km2: 5.919661914806246
   p90_burn_ha_per_fire: 533.6747021372
   p95_burn_ha_per_fire: 1504.4266319199996
+  natural_cause: 0.6083897863470558
+  human_cause: 0.341323606044815
+  undetermined_cause: 0.05028660760812923
 stage_a:
   total_patches: 6625
   total_fires_with_patches: 1051
