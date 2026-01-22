@@ -17,6 +17,7 @@ thresholds:
   dnbr_value: "moderate"    
   connectivity: "8-neighbour"
   scale: "45m x 45m"
+  aspect_label: 0.6
 
 fields:
   year: "Year"
