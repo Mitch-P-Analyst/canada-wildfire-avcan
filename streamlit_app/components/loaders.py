@@ -35,8 +35,38 @@ def load_yaml_config(filename: str) -> Dict[str, Any]:
         return {}
     return data
 
-def fmt(v, default="TBD"):
-    return default if v in (None, "", "None") else v
+# Data loading 
+# =================================================================
+
+# ========== Integer values =====================================
+def fmt_int(n):
+    return "—" if n is None else f"{int(n):,}"
+
+# ========== Float values =====================================
+def fmt_num(x, decimals=0):
+    return "—" if x is None else f"{x:,.{decimals}f}"
+
+# ========== Percent values =====================================
+def fmt_pct(x, decimals=1):
+    return "—" if x is None else f"{x:.{decimals}%}"
+
+# ========== String values =====================================
+def fmt_str(s):
+    # Handles None, NaN, and empty/whitespace-only strings
+    if s is None:
+        return "-"
+    try:
+        # catches pandas/numpy NaN without importing numpy
+        if s != s:
+            return "-"
+    except Exception:
+        pass
+
+    s = str(s).strip()
+    return "-" if s == "" else s
+
+
+
 
 
 # ===================================================================
@@ -53,6 +83,18 @@ def _ensure_wgs84(gdf: gpd.GeoDataFrame, name: str) -> gpd.GeoDataFrame:
     # drop empty geometries defensively
     gdf = gdf[gdf.geometry.notna() & ~gdf.geometry.is_empty].copy()
     return gdf
+
+# ===================================================================
+# Bullet Formatting
+# ===================================================================
+def _kv(label: str, value: str) -> None:
+    st.markdown(f"**{label}:** {value}")
+
+def _bullet_list(items: list[str]) -> None:
+    st.markdown("\n".join([f"- {x}" for x in items]))
+
+def _bullet_kv(items: list[tuple[str, str]]) -> None:
+    st.markdown("\n".join([f"- **{k}:** {v}" for k, v in items]))
 
 
 # ===================================================================

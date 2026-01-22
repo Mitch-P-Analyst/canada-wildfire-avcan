@@ -32,7 +32,7 @@ def build_folium_map(
             name="Fire perimeters",
             style_function=lambda _: {"color": color_fires, "weight": 2, "fill": False},
             tooltip=folium.GeoJsonTooltip(
-                fields=[c for c in ["Region", "Subregion", "Year", "Unique Fire ID (gid)", "Total Adjusted Area (ha)"] if c in fires_gdf.columns],
+                fields=[c for c in ["Region", "Subregion", "Unique Fire ID (gid)", "Total Adjusted Area (ha)"] if c in fires_gdf.columns],
                 labels=True,
             ),
         ).add_to(m)
@@ -43,7 +43,7 @@ def build_folium_map(
             name="Burn Severity patches",
             style_function=lambda _: {"color": color_patches, "weight": 1.5, "fill": True, "fillOpacity": 0.35},
             tooltip=folium.GeoJsonTooltip(
-                fields=[c for c in ["Region","Subregion","Year","Patch ID","Majority Cardinal Direction","Patch Area (ha)","Mean Elevation (m)","Mean Slope Degree"] if c in patches_gdf.columns],
+                fields=[c for c in ["Region","Subregion","Unique Patch ID","Aspect Label", "Aspect Coherence (R)","Patch Area (ha)","Mean Elevation (m)","Mean Slope Degree"] if c in patches_gdf.columns],
                 labels=True,
             ),
         ).add_to(m)
@@ -52,7 +52,7 @@ def build_folium_map(
         folium.GeoJson(
             region_gdf,
             name="AvCan Region",
-            style_function=lambda _: {"color": "#000000", "weight": 2.5, "fill": False},
+            style_function=lambda _: {"color": "#000000", "weight": 3.0, "fill": False},
             tooltip=folium.GeoJsonTooltip(fields=[c for c in ["Region"] if c in region_gdf.columns], labels=True),
         ).add_to(m)
 
