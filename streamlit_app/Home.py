@@ -1,6 +1,3 @@
-# streamlit_app/app.py
-
-
 # ===================================================================
 # Imports
 # ===================================================================
@@ -72,17 +69,17 @@ avg_burn_area_per_year_km = nbac_stats.get("avg_burn_km2_per_year")
 # -------------------------------------------------------------------
 st.title("Avalanche Canada Wildfire Explorer")
 
-# st.info("Upate In Progress (Jan 5th). Address clarity structure and non-techincal communication")
+st.caption("Important: This application is an informational mapping and analysis tool. The Burn Severity Patches (Stage A) layer is a screening heuristic intended to highlight candidate areas for follow-on verification (e.g., using current imagery, local knowledge, and appropriate professional guidance). It is not a safety product and must not be used for route selection, terrain selection, or trip planning decisions.")
+
 
 st.markdown(f"""
 The Canadian **National Burned Area Composite (NBAC)**, maintained by Natural Resources Canada, is a national geospatial dataset that maps and quantifies forest area burned each year across Canada. Compiled from provincial, territorial, and protected-area sources, NBAC is widely used to support analysis of wildfire impacts on ecosystems and landscapes.
             
 According to NBAC, since **{min_year}** Canada has experienced an average of **{fmt_num(avg_fire_count_per_year,2)} fires per year**, burning approximately **{fmt_num(avg_burn_area_per_year_ha,2)} hectares** annually ({fmt_num(avg_burn_area_per_year_km,2)} km²). That is roughly **half the area of Nova Scotia every year**. Despite the scale of this size, the footprint of wildfire can be easy to miss on the ground, even for those living in close proximity or people traveling through mountain landscapes.
 
-Many winter recreation users, such as skiers, snowboarders, and snowmobilers, are familiar with burned forests. Post-fire terrain, sometimes referred to as "Burnt Tree Zones", can create unique conditions for travel and enjoyable gladed riding when combined with favorable snow and stability. **Avalanche Canada (AvCan)** is a **non-profit organization** that provides public avalanche safety information and education, including regional avalanche forecasts and hazard bulletins informed by professional observations and community-submitted reports.
+**Avalanche Canada (AvCan)** is a **non-profit organization** that provides public avalanche safety information and education, including regional avalanche forecasts and hazard bulletins informed by professional observations and community-submitted reports.
 
-The initial objective of this **Avalanche Canada Wildfire Explorer** is to overlay NBAC-recorded wildfire perimeters with Avalanche Canada forecast regions to make wildfire impacts more tangible in the mountain environments used by the public. By pairing wildfire statistics with mapped recreation-relevant areas, this project aims to support awareness of wildfire presence in mountain communities and help users explore how these landscapes are changing over time. This dataset and workflow can be extended to support additional analyses, such as regional trends in fire frequency, burned area, severity, and ignition causes, with potential applications in research, planning, and risk communication.
-            
+This project overlays NBAC wildfire perimeters with Avalanche Canada (AvCan) forecast regions to make wildfire impacts more tangible in mountainous terrain and to support awareness of wildfire presence in mountain communities and region-based exploration of wildfire presence over time. In addition to mapping perimeters and statistics, the Explorer includes a derived layer, **Burn Severity Patches (Stage A)**, which applies spectral severity and minimum patch-size logic to highlight candidate post-fire areas, viable for follow-on verification of wildifre impact (e.g., exploring where canopy-loss conditions may exist, remaining biomass densities, tree species composition and spacing), or analyses such as regional trends in fire frequency, burned area, severity, and ignition causes, with potential applications in research, planning, and risk communication. 
 """)
 
 
@@ -97,9 +94,9 @@ st.markdown(
         
     ##### Explorer
 
-    An interactive topographic map for exploring wildfire perimeters within Avalanche Canada (AvCan) forecast regions and viewing region-filtered summary statistics. In addition to NBAC fire perimeters, the Explorer includes a derived **Burn Severity Patches (Stage A)** layer, which highlights areas within AvCan-filtered fires that meet calibrated severity and minimum patch-size thresholds as potential **candidates for winter recreational use**. The methodology, calibration reference, and threshold logic used to generate these patches are documented on the Method page.
+    An interactive topographic map for exploring wildfire perimeters within Avalanche Canada (AvCan) forecast regions and viewing region-filtered summary statistics. In addition to NBAC fire perimeters, the Explorer includes a derived **Burn Severity Patches (Stage A)** layer, which highlights post-fire areas that meet calibrated severity and minimum patch-size thresholds as candidates for follow-on verification. The methodology, calibration reference, assumptions, and limitations used to generate these patches are documented on the Method page.
 
-    Use the Explorer to navigate by region and year range, compare wildfire presence across backcountry-relevant areas, and review how fire activity and derived patch coverage vary within AvCan regions and subregions.
+    Use the Explorer to navigate by region and year range, compare wildfire presence across AvCan regions, and review how fire activity and derived patch coverage vary within regions and subregions.
 
     ##### Method
 
