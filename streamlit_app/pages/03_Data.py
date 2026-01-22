@@ -247,7 +247,7 @@ def data_page() -> None:
         _kv("Why it’s used", "Provides the fire perimeter geometry that is filtered to Avalanche Canada regions.")
         _kv("Temporal coverage", "Annual records (project currently uses the years processed into the app layers).")
         _kv("Downloaded as", "One ZIP file per year (NBAC burned area polygons).")
-        _kv("Manpulated", "NBAC fire perimeters were intersected with Avalanche Canada forecast regions and split by subregions to create an AvCan-filtered fire-perimeter layer (NBAC fires within AvCan regions only).")
+        _kv("Transformed", "NBAC fire perimeters were intersected with Avalanche Canada forecast regions and split by subregions to create an AvCan-filtered fire-perimeter layer (NBAC fires within AvCan regions only).")
         _kv("Shipped to app as", "`data/processed/app/Fires.parquet` (GeoParquet; WGS84 / EPSG:4326)")
         st.markdown("**Source:** https://cwfis.cfs.nrcan.gc.ca")
 
@@ -312,9 +312,10 @@ def data_page() -> None:
     st.markdown("## Supporting and Context Datasets")
     st.caption("These datasets support preprocessing, validation, and cartographic context, but are not necessarily displayed as primary Explorer layers.")
 
-    with st.expander("Statistics Canada – Provincial / Territorial boundaries (2021)", expanded=False):
+    with st.expander("Provincial / Territorial boundaries (2021)", expanded=False):
         _kv("What it is", "Cartographic boundary file for provinces/territories (2021 Census).")
-        _kv("Why it’s used", "Provides national context and can support sanity-check filtering / labeling.")
+        _kv("Publisher", "Statistics Canada")
+        _kv("Why it’s used", "Provides national context and can support sanity-check filtering / labeling during Avcan/NBAC overlay.")
         _bullet_list(["File(s): `lpr_000b21a_e.zip` "])
         st.markdown("**Source:** https://www12.statcan.gc.ca/census-recensement/2021/geo/sip-pis/boundary-limites/index2021-eng.cfm?Year=21")
 

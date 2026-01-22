@@ -13,7 +13,7 @@ from streamlit_folium import st_folium
 # Components
 # ===================================================================
 from components.loaders import load_yaml_config
-from components.loaders import fmt
+from components.loaders import fmt_int, fmt_num, fmt_pct, fmt_str
 
 # ===================================================================
 # Directories
@@ -39,8 +39,12 @@ def method_page() -> None:
     # Introduction
     # ===================================================================
     st.title("Method & Processes")
-    st.write("This page summarises the analytical workflow and processing steps used to build the AvCan Wildfire Explorer.")
     st.divider()
+
+    st.markdown("## Overview")
+    st.markdown("""
+    This page documents the end-to-end workflow used to build the AvCan Wildfire Explorer map layers, from sourcing and cleaning NBAC fire perimeters, to intersecting fires with Avalanche Canada forecast regions, to generating Stage A Burn Severity Patches and exporting app-ready GeoParquet layers. It outlines the key processing steps, threshold logic, and calibration decisions that underpin the map layers and summary statistics shown in the Explorer.                
+    """)
 
     # ===================================================================
     # Constants
@@ -71,10 +75,10 @@ def method_page() -> None:
     # ===================================================================
     # Body
     # ===================================================================
-    st.markdown("## Github Project - Pipeline Overview")
+    st.markdown("## Data Pipeline")
     st.markdown("""
             A high-level overview of the data pipeline used to produce the application’s map layers and summary statistics. 
-            Reproducable project and indepth README overview can be accessed at the following link: [https://github.com/Mitch-P-Analyst/canada-wildfire-avcan.git](Github Repository Link) 
+            Reproducable project and indepth README overview can be accessed at the following link: [Avalanche Canada Wildfire Explorer Github Repository](https://github.com/Mitch-P-Analyst/canada-wildfire-avcan.git) 
 
             1. Download and process National Burn Area Composite (NBAC) file polygons.
                 - `scripts/01_download_nbacs.py`
@@ -94,8 +98,11 @@ def method_page() -> None:
                 - `scripts/08_build_app_layers.py`
 
             **Next Steps**
-            9. Stage B1 — Forest Inventory: Download Vegetation Resource Inventory (VRI) for each AvCan region. Overlaying patches with VRI inventory polygons, appending selected VRI attributes (e.g Canopy openness, species composition, density/biomass proxies)
-            10. Stage B2 - Regrowth Vegetation: Compute Normalised Difference Vegetation Index (NDVI) from post-fire year to current, assessing and callibrating a regrowth threshold for optimal patch candidates.
+                
+            9. Stage B1 | Forest Inventory.
+                - Download Vegetation Resource Inventory (VRI) for each AvCan region. Overlaying patches with VRI inventory polygons, appending selected VRI attributes (e.g Canopy openness, species composition, density/biomass proxies)
+            10. Stage B2 | Regrowth Vegetation.
+                - Compute Normalised Difference Vegetation Index (NDVI) from post-fire year to current, assessing and callibrating a regrowth threshold for optimal patch candidates.
                 """)
     
     st.divider()
@@ -103,16 +110,16 @@ def method_page() -> None:
     st.markdown("## Burn Severity Patches (Stage A)")
     st.markdown(f"""
     #### Objective 
-    Identify and extract areas within AvCan fire polygons that meet callibrated thresholds. Identified areas are named "Burn Severity Zones" and candidates for winter recreational uses.
+    Identify and extract areas within AvCan fire polygons that meet callibrated thresholds. Identified areas are named "Burn Severity Zones" and candidates for winter recreational use.
 
     #### Reference calibration
-    {fmt(ref_note)} Intended use of *Burn Severity Patches* is to identify candidate areas for winter recreational activities, sometimes referred to as *"Burnt Tree Zones"*.  
-    Calibration and resulting thresholds reference **{fmt(ref_region)}** fire GID **{fmt(ref_gid)}**, selected due to reported favourable winter recreational conditions.
+    {fmt_str(ref_note)} Intended use of *Burn Severity Patches* is to identify candidate areas for winter recreational activities, sometimes referred to as *"burnt tree zones"*.  
+    Calibration and resulting thresholds reference **{fmt_str(ref_region)}** fire GID **{fmt_str(ref_gid)}**, selected due to reported favourable winter recreational conditions.
 
     #### Thresholds 
-    - Difference Normalised Burn Ratio (dNBR) minimum: **{fmt(dnbr_min)}**
-    - Minimum connected patch area (ha): **{fmt(min_patch_area_ha)}**
-    - Pixel connectivity: **{fmt(pixel_conn)}**
+    - Difference Normalised Burn Ratio (dNBR) minimum: **{fmt_num(dnbr_min,1)}**
+    - Minimum connected patch area (ha): **{fmt_int(min_patch_area_ha)}**
+    - Pixel connectivity: **{fmt_str(pixel_conn)}**
 
     #### Context
     
@@ -120,20 +127,20 @@ def method_page() -> None:
 
     dNBR is derived from the Normalized Burn Ratio (NBR), which is computed using the Near-Infrared (NIR) and Shortwave Infrared (SWIR) bands of satellite imagery. Wildfire typically reduces healthy vegetation (lower NIR reflectance) and increases exposed soil/char and surface dryness (higher SWIR reflectance). As a result, NBR and dNBR are widely used to map burn impacts and relative burn severity in forested landscapes.
     
-    In this project, Burn Severity Patches (Stage A) are identified by applying a calibrated dNBR threshold (referenced to {fmt(ref_region)} fire ID {fmt(ref_gid)}) to extract comparable severity patches across fires within Avalanche Canada forecasting regions.
+    In this project, Burn Severity Patches (Stage A) are identified by applying a calibrated dNBR threshold (referenced to {fmt_str(ref_region)} fire ID {fmt_str(ref_gid)}) to extract comparable severity patches across fires within Avalanche Canada forecasting regions.
 
-    dNBR is calculated using pre- and post-fire seasonal composites spanning **{fmt(time_start)} – {fmt(time_end)}** (one year before and one year after each fire year), from Landsat 5/7/8/9 composite imagery.
+    dNBR is calculated using pre- and post-fire seasonal composites spanning **{fmt_str(time_start)} – {fmt_str(time_end)}** (one year before and one year after each fire year), from Landsat 5/7/8/9 composite imagery.
     
 
     **Minimum connected patch area and pixel connectivity**
 
-    To reduce computational load within Google Earth Engine memory limits, and to focus on the largest candidate areas, Stage A applies a minimum patch area rule during patch identification. While Landsat imagery has a native 30 m x 30 m resolution, processing is performed at a coarser {fmt(scale_value)} scale during patch extraction to reduce computation and produce fewer, larger candidate patches.
+    To reduce computational load within Google Earth Engine memory limits, and to focus on the largest candidate areas, Stage A applies a minimum patch area rule during patch identification. While Landsat imagery has a native 30m x 30m resolution, processing is performed at a coarser {fmt_str(scale_value)} scale during patch extraction to reduce computation and produce fewer, larger candidate patches.
 
-    Pixels that meet or exceed the dNBR threshold are grouped into contiguous patches using {fmt(pixel_conn)} connectivity (pixels are connected through both cardinal and diagonal neighbours). A {fmt(min_patch_area_ha)} hectare minimum patch size is then applied at the {fmt(scale_value)} processing scale, this corresponds to approximately {fmt(min_patch_pixels)} connected pixels.
+    Pixels that meet or exceed the dNBR threshold are grouped into contiguous patches using {fmt_str(pixel_conn)} connectivity (pixels are connected through both cardinal and diagonal neighbours). A {fmt_int(min_patch_area_ha)} hectare minimum patch size is then applied at the {fmt_str(scale_value)} processing scale, this corresponds to approximately {fmt_str(min_patch_pixels)} connected pixels.
 
     **Computation**
 
-    Burn Severity Patches are generated for each individual fire by applying a dNBR threshold (default dNBR ≥ {fmt(dnbr_min)}) to create a binary mask. Masked pixels are then grouped into connected patches using the pixel connectivity rules above, and patches smaller than the minimum area threshold are removed. The remaining patches form the final Burn Severity Patches layer, which is then converted to polygons clipped to the fire perimeter geometry.
+    Burn Severity Patches are generated for each individual fire by applying a dNBR threshold (default dNBR ≥ {fmt_num(dnbr_min,2)}) to create a binary mask. Masked pixels are then grouped into connected patches using the pixel connectivity rules above, and patches smaller than the minimum area threshold are removed. The remaining patches form the final Burn Severity Patches layer, which is then converted to polygons clipped to the fire perimeter geometry.
 
     
     """)

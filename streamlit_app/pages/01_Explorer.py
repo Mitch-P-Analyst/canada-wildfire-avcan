@@ -30,7 +30,7 @@ from components.loaders import load_app_layers, app_data_dir
 from components.sidebar import sidebar_controls
 from components.folium_map import build_folium_map
 from components.metrics import render_metrics_column
-from components.loaders import load_yaml_config
+from components.loaders import load_yaml_config, fmt_int, fmt_num, fmt_pct, fmt_str
 from components.map_layers import map_layers_intro
 
 # ===================================================================
@@ -88,8 +88,8 @@ total_burn_km = nbac.get("total_burn_km")
 # ===================================================================
 def mapp_application() -> None:
     st.title("Wildfire Explorer")
-    st.caption("Interactive topographical map of AvCan forcasting regions, NBAC wildfire perimeters and map layers produced from callibrated burn severity and vegetation thresholds.")
-    st.info("Upate In Progress (Jan 8th). Address clarity structure and non-techincal communication")
+   
+    # st.info("Upate In Progress (Jan 8th). Address clarity structure and non-techincal communication")
     st.divider()
     # Load Cached Layers 
     # =================================================================
@@ -107,9 +107,9 @@ def mapp_application() -> None:
     # ========== Overview =====================================
     st.markdown("## Overview")
     st.markdown(f"""
-                After combining annual NBAC GIS data from {min_year} to {max_year}, summary statistics show that Canada recorded **{total_burn_count} fires** and **{total_burn_ha} hectares burned** over this {(max_year - min_year) + 1} period. A quantity difficult to comprehend at a national scale. 
+                After combining annual NBAC wildfire-perimeter data from {min_year} to {max_year}, summary statistics indicate that Canada recorded {fmt_num(total_burn_count)} fires and {fmt_num(total_burn_ha,2)} hectares burned over this {(max_year - min_year) + 1}-year period, an impact that is difficult to interpret at a national scale.
     
-    To make this data more tangible, this interactive topographic map overlays **NBAC wildfire perimeters** with **Avalanche Canada (AvCan) forecasting regions**, allowing users to explore wildfire impacts near mountain communities and within nearby backcountry recreation areas.
+    This Wildfire Explorer improves local relevance by overlaying NBAC wildfire perimeters on Avalanche Canada (AvCan) forecast regions within an interactive topographic map. Users can filter by region and year range to explore where wildfires have occurred near mountain communities and across adjacent backcountry recreation terrain. By translating national wildfire records into backcountry-relevant geographies, the app aims to support clearer communication of wildfire presence and change in the landscapes people live in and travel through.
 
     
                 
