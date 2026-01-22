@@ -96,10 +96,14 @@ def map_layers_intro(
         
     with st.expander("##### Burn Severity Patches (Stage A)", expanded=False):
         st.markdown(f"""
-        Stage A of this AvCan Wildfire Explorer computes custom, derived **Burn Severity Patches** within NBAC fire perimeters. These patches are visualised in an seperate map layer with default <span style='color:#ff5a00;'>Orange Colour</span> perimeters. This colour can be changed in the **Legends** section of the sidebar.
-                    
-        Burn severity patches represent post-fire areas that meet this project’s criteria as potential candidates for winter recreation (e.g., skiing, snowboarding, snowmobiling), sometimes referred to as “burnt tree zones.” This is intended as an exploratory layer to help highlight terrain for recreational use, not as an official Avalanche Canada product. For information on this layer's computation, refer to the **Method** page. 
-        
+        Stage A of this AvCan Wildfire Explorer computes custom, derived **Burn Severity Patches** within NBAC fire perimeters. These patches are displayed as a seperate map layer with default <span style='color:#ff5a00;'>Orange Colour</span> perimeters. This colour can be changed in the **Legends** section of the sidebar.
+
+        Burn Severity Patches are a screening heuristic that highlights post-fire areas meeting this project’s configurable severity and minimum patch-size criteria as candidates for follow-on verification (e.g., reviewing current imagery, consulting local knowledge, and applying appropriate professional guidance). This layer does not confirm on-the-ground conditions, access, hazards, or suitability, and it is not a safety or decision-support product.
+
+        For information on how this layer is computed (thresholds, calibration reference, assumptions, and limitations), refer to the **Method** page.
+
+
+
         Each burn severity patch perimeter includes the following metadata:
         """, 
         unsafe_allow_html=True)

@@ -8,7 +8,7 @@ calibration:
   reference_gid: "1990_106"
   time_start: "June_1st"    
   time_end: "October_31st"  
-  note: "Thresholds were calibrated to match observed conditions from first-hand reports of a known forest fire."
+  note: "Thresholds were calibrated as a practical heuristic using observations from a known reference fire to identify comparable severity signals across AvCan filtered fires."
 
 thresholds:
   dnbr_min: 0.2

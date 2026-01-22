@@ -139,7 +139,7 @@ def roadmap_section() -> None:
         st.markdown("""
         A **Normalized Difference Vegetation Index (NDVI)** time-series will be computed on Stage A's Burn Severity Patches from each post-fire year to the current year. This assessment will aim to **calculate the amount of vegetation regrowth since fire occurance**.
                     
-        Additionally, this project plans to integrate vegetation inventory data (specifically the British Columbia **Vegetation Resources Inventory (VRI)** ) to characterize applicable Stage A Burn Severity Patches with forest stand-structure attributes derived from the inventory's aerial photo interpretation and supporting field data. Relevant indicators for winter recreation may include **tree canopy closure/openness, stand height, species composition, biomass proxies, and sparsity or openness classes.**
+        Additionally, this project plans to integrate vegetation inventory data (specifically the British Columbia **Vegetation Resources Inventory (VRI)** ) to characterize applicable Stage A Burn Severity Patches with forest stand-structure attributes derived from the inventory's aerial photo interpretation and supporting field data. Potential stand-structure descriptors that may help interpret post-fire canopy conditions include canopy closure/openness, stand height, species composition, biomass proxies, and sparsity/openness classes.
         
         For further information on techinical method and planned analytical processes can be found on the **Method** page.
                                 """)
