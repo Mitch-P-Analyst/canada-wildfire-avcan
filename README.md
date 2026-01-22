@@ -4,7 +4,8 @@ Interactive geospatial analysis and map explorer that overlays **NBAC wildfire p
 
 **Live app:** [Avalanche Canada Wildfire Explorer](https://avalanche-canada-fire-explorer.streamlit.app/)
 
-> Disclaimer: This project is for informational and exploratory analysis only. It is not a safety product and should not be used to make operational or field safety decisions.
+> **Important:** This project is an informational mapping and analysis tool. The derived **Burn Severity Patches (Stage A)** layer is a **screening heuristic** intended to highlight **candidate areas for follow-on verification** (e.g., using current imagery, local knowledge, and appropriate professional guidance).  
+> It is **not** a safety product and must **not** be used for route selection, terrain selection, or trip planning decisions.
 
 ---
 
@@ -19,7 +20,10 @@ Interactive geospatial analysis and map explorer that overlays **NBAC wildfire p
 ---
 
 ### Introduction
-This geospatial analysis project maps Canadian wildfire perimeters from the National Burned Area Composite (NBAC) by Natural Resources Canada / CWFIS, within Avalanche Canada (AvCan) forecast regions. The goal is to make wildfire impacts more interpretable in backcountry-relevant terrain by combining fire perimeters with regional forecasting geographies, and producing an interactive topographic explorer. A derived map layer, "Burn Severity Patches (Stage A)", highlights post-fire areas that meet calibrated severity and minimum patch-size thresholds as potential “burnt tree zone” candidate areas for further evaluation of open-canopy post-fire terrain relevant to winter travel.
+This project overlays Canadian wildfire perimeters from the National Burned Area Composite (NBAC) onto Avalanche Canada (AvCan) forecast regions to make wildfire impacts more tangible in mountainous landscapes. In addition to mapping perimeters and regional statistics, the project generates a supplemental layer, **Burn Severity Patches (Stage A)**, which applies configurable spectral-severity and minimum patch-size logic to highlight **candidate post-fire areas for follow-on verification** (e.g., exploring where canopy-loss conditions may exist).
+
+Stage A outputs are best interpreted as a **screening layer** for exploratory research and communication: they can help focus attention on areas that may warrant further review, but they do not confirm on-the-ground conditions, access, hazards, or recreational suitability.
+
 
 ---
 
@@ -35,14 +39,20 @@ The data is copied from `streamlit_app/config/summary_stats.yaml`, which is extr
 
 ---
 
-### How Stage A patches are created (high level)
+### Derived map layer - Burn Severity Patches (Stage A)
 
 Stage A identifies post-fire polygons that:
-1. Meet calibrated spectral severity criteria (Landsat dNBR/NDVI-derived logic)
-2. Exceed a minimum patch size threshold
-3. Are enriched with terrain metadata (elevation, slope, aspect variability)
+- Meet a calibrated severity criteria for Landsat dNBR ≥ 0.2. 
+    - Calibrated against NBAC **fire ID 1990_106** in AvCan region South Coast Inland due to first-hand reports of severity conditions.
+- Exceed a minimum patch size threshold ≥ 10 ha
+- Enriched with terrain metadata (elevation, slope, aspect variability)
 
 Full technical detail is documented in the Streamlit app’s **Method** page (and in the Stage A scripts).
+
+#### Calibration and limitations
+The derived **Burn Severity Patches** from identified thresholds are calibrated to a reference fire and are intended as an initial heuristic. Results are sensitive to Landsat spatial resolution, the seasonal composite window, regional vegetation differences, and the timing of post-fire imagery. 
+
+Future exploration can broaden Stage A calibration across multiple representative fires and the planned Stage B (Regrowth Vegetation + Forest Inventory) will investigate forestry attributes for further analysis, such as canopy openness/crown closure, density/biomass proxies and non-tree vegetation descriptors.
 
 ---
 
@@ -66,35 +76,33 @@ Full technical detail is documented in the Streamlit app’s **Method** page (an
 
 ---
 
-## Quick start
+## Run Application
+There are two common ways to run this project locally:
 
 ### Prerequisites
 - Python 3.10+ recommended
 - Google Earth Engine (for Stage A scripts): `earthengine authenticate`
 - (Optional) `gsutil` if pulling exports from GCS
 
-### Install & run app
+
+### Option 1: Pre-developed map layers
+Run a local streamlit application using the prebuilt parquet app layers shipped in `data/processed/app/`. 
+
 ```bash
 pip install -r requirements.txt
 streamlit run streamlit_app/Home.py
 ```
 
-### Optional: 
-Reprocess EE exports layers with modified thresholds, and rebuild Streamlit-ready layers.
-```bash
-python scripts/05_stage_a1.py
-python scripts/06_stage_a2.py
-python scripts/07_stage_a_ee_export.py
-python scripts/08_build_app_layers.py
-```
-- 
+### Option 2: Full rebuild map layers
+Reproduce all datasets and derived layers (requires Google Earth Engine, exports, and longer runtimes), with the option to modifiy thresholds.
+> Note: Reprocessing all scripts below may take >48 hours with Google Earth Engine's python API. 
 
-
+Run all python scripts the the **Pipeline** section below.
 
 --- 
 
 ## Pipeline
-- Download and process National Burn Area Composite (NBAC) file polygons.
+- Download and process National Burn Area Composite (NBAC) file polygons for years filtered (1990 - 2024).
     - `scripts/01_download_nbacs.py`
 
 - Download Statistics Canada provinces and territories boundaries (2021)
@@ -113,6 +121,7 @@ python scripts/08_build_app_layers.py
             - `min_patch_area_ha`
 
         - If you change thresholds, you must rerun Stage A and rebuild app layers, otherwise the app may display thresholds that do not match the shipped dataset.
+        - This script computes aggregated analyses of region-subregion-year groups, before re-try attempts on aggreates that met EE memory threshold, by analysing remaining individual Fire IDs.
 
 - Compute and append applicable geographical metadata to stage A1's Burn Severity Patches with Google Earth Engine's python API.
     - `scripts/06_stage_a2.py`
@@ -136,13 +145,14 @@ python scripts/08_build_app_layers.py
 ### Next Steps:
 - Stage B1 | Forest Inventory.
     - Download Vegetation Resource Inventory (VRI) for each AvCan region. Overlaying patches with VRI inventory polygons, appending selected VRI attributes (e.g Canopy openness, species composition, density/biomass proxies)
+
 - Stage B2 | Regrowth Vegetation.
     - Compute Normalised Difference Vegetation Index (NDVI) from post-fire year to current, assessing and calibrating a regrowth threshold for optimal patch candidates.
 
 ---
 ## Data
 
-### Sources
+### Sourced
 - #### National Burned Area Composite (NBAC)
     - **What it is**: National Burned Area Composite (NBAC): an annually updated national dataset of burned area polygons.
     - **Publisher**: Natural Resources Canada – Canadian Forest Service (CWFIS)
@@ -172,9 +182,59 @@ python scripts/08_build_app_layers.py
 
 ---
 
+### Derived layers
+
+- #### Burn Severity Patches (Stage A)
+    - **What it is**: Stage A is a **screening heuristic** that identifies post-fire polygons that meet a calibrated Landsat spectral severity threshold (default: dNBR ≥ 0.2) and exceed a minimum patch size threshold (default: ≥ 10 ha). The patches are then enriched with terrain metadata (elevation, slope, and aspect variability)
+    - **How to interpret**: These patches are **candidates for follow-on verification**, not a confirmation of “open trees,” “good skiing,” or safety. The layer can be used to support exploratory mapping and analysis of landscape change, and to guide where deeper review may be worthwhile (e.g., reviewing current satellite imagery, consulting local knowledge, land managers, and professional guides). If using Stage A patches as a starting point for further investigation, candidates should be verified with additional context such as:
+        - Recent satellite imagery / aerial imagery (post-fire regrowth can change rapidly)
+        - Land access status and closures (parks, private tenure, active forestry operations)
+        - Local terrain knowledge and conditions (blowdown, snags, creek changes)
+        - Current avalanche and weather information (Stage A does not evaluate avalanche conditions)
+        - Professional judgment (guides, land managers, local experts)
+    Stage A is designed to support exploratory mapping and prioritization of follow-up, not to replace these checks.
+    - **Why it's used**: Highlights post-fire patches meeting configured severity and patch-size thresholds as **candidates for follow-on verification** (exploratory screening layer; not a suitability or safety layer).- **Shipped to app as**: `data/processed/app/Stage_A2_Burn_Severity_Patches.parquet` (GeoParquet; WGS84 / EPSG:4326)
+    - **Calibration and limitations:**: Stage A thresholds are calibrated as a practical, repeatable approach to highlight potential canopy-loss conditions using widely used spectral proxies. Calibration is anchored to a reference fire and region (South_Coast_Inland / Fire ID 1990_106). Results are sensitive to Landsat spatial resolution, seasonal composite window, regional vegetation differences, and timing of post-fire imagery. dNBR is a severity proxy and is not a direct measurement of canopy openness, hazard, access, or suitability.
+    - **Thresholds** (from stage_a.yaml):
+        - Difference Normalized Burn Ratio (dNBR) ≥ 0.2
+        - Minimum patch area ≥ 10 ha / ≈ 49–50 pixels
+        - Pixel Connectivity: 8-neighbour
+        - Seasonal window used for composites: June 1st to October 31st
+    - **Produced with**: Google Earth Engine python API.
+
+Full technical detail is documented in the Streamlit app’s **Method** page (and in the Stage A scripts).
+
+- ##### Interpreting “Candidate Areas” (Verification Checklist)
+If using Stage A patches as a starting point for further investigation, candidates should be verified with additional context such as:
+- Recent satellite imagery / aerial imagery (post-fire regrowth can change rapidly)
+- Land access status and closures (parks, private tenure, active forestry operations)
+- Local terrain knowledge and conditions (blowdown, snags, creek changes)
+- Current avalanche and weather information (Stage A does not evaluate avalanche conditions)
+- Professional judgment (guides, land managers, local experts)
+
+Stage A is designed to support exploratory mapping and prioritization of follow-up, not to replace these checks.
+
+---
+
+### Data Contract (Shipped App Layers)
+
+The Streamlit application reads the following GeoParquet layers from `data/processed/app/`. These are treated as the stable interface between the pipeline and the app UI.
+
+| Layer | Path | Geometry | CRS | Required fields (minimum) | Notes |
+|---|---|---:|---:|---|---|
+| Fires | `data/processed/app/Fires.parquet` | Polygon / MultiPolygon | EPSG:4326 | `geometry`, `Year`, `Region`, `Subregion`, `National Park`, `Total Adjusted Area (ha)`, `Cause`, `Province/Territory`, `Subregion Area (ha)`, `Unique Fire ID (gid)` | AvCan-filtered NBAC perimeters split by AvCan subregion; may include additional NBAC attributes (cause, admin area, adjusted area). |
+| Regions | `data/processed/app/Regions.parquet` | Polygon / MultiPolygon | EPSG:4326 | `geometry`, `Region`, `Subregion`, `Province/Territory` | Avalanche Canada forecast region boundaries used for filtering, aggregation, and map navigation. |
+| Burn Severity Patches (Stage A2) | `data/processed/app/Stage_A2_Burn_Severity_Patches.parquet` | Polygon / MultiPolygon | EPSG:4326 | `geometry`,`Year`, `Region`, `Subregion`, `Aspect Label`,`Aspect Coherence (R)`, `Mean Elevation (m)`, `Unique Fire ID (gid)`, `Patch Area (ha)`, `Mean Slope Degree`,`Unique Patch ID` | Derived patches meeting configured severity + minimum area criteria; enriched with terrain metrics (e.g., elevation/slope summaries and aspect variability). |
+
+**Contract expectations**
+- All three layers must be valid GeoParquet with a geometry column and correct CRS.
+- Region labeling must be consistent across layers (same `Region`/`Subregion` naming convention).
+- If Stage A thresholds change, `Stage_A2_Burn_Severity_Patches.parquet` and any displayed summary statistics should be regenerated to keep the app consistent.
+
+
 ## Repository Structure
 ``` 
-wildfire-risk-analysis/
+canada-wildfire-avcan/
 │
 ├── streamlit_app/                      # Published application
 │   ├── Home.py                         # Introduction / Overview / Roadmap
@@ -249,7 +309,7 @@ wildfire-risk-analysis/
 │
 └── README.md
 ```
-
+---
 
 
 Mitchell J. R. Palmer
