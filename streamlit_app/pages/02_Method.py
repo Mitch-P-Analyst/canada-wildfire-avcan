@@ -26,7 +26,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 # Page Config
 # ===================================================================
 st.set_page_config(
-    page_title="Method",
+    page_title="Avalanche Canada Wildfire Explorer",
     page_icon="🔥",
     layout="wide"
 )

@@ -29,7 +29,7 @@ if str(APP_DIR) not in sys.path:
 # Page config
 # -------------------------------------------------------------------
 st.set_page_config(
-    page_title="AvCan Wildfire Explorer",
+    page_title="Avalanche Canada Wildfire Explorer",
     page_icon="🔥",
     layout="wide",
     initial_sidebar_state="expanded",

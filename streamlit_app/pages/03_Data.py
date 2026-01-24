@@ -15,7 +15,7 @@ from components.loaders import fmt_int, fmt_num, fmt_pct , _kv, _bullet_list, _b
 # Page Config
 # ===================================================================
 st.set_page_config(
-    page_title="Data",
+    page_title="Avalanche Canada Wildfire Explorer",
     page_icon="🔥",
     layout="wide",
 )
