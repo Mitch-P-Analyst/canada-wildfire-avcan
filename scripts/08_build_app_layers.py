@@ -2,28 +2,14 @@
 # Avalanche Canada Fire Data to Streamlit App Layers
 # ===================================================================
  
-# This notebook proceeds after using Google Earth Engine to assess Stage A Burn Severity Patches ( + Stage B Vegetation Regrowth) within AvCan Fires. 
-# 
-
 # ===================================================================
 # Imports
 # ===================================================================
-
-# Operation Packages 
-# =================================================================
-
 import sys 
 import pandas as pd
 import geopandas as gpd
 from pathlib import Path
-
 import folium
-# Visualisation Packages 
-# =================================================================
-# import plotly.express as px
-# import plotly.graph_objects as go
-# import matplotlib.pyplot as plt
-# from shapely.geometry import Point
 
 # ===================================================================
 # Directories 
@@ -55,12 +41,6 @@ def round_numeric_columns(df, decimals=2, exclude=None):
     num_cols = [c for c in df.select_dtypes(include="number").columns if c not in exclude]
     df[num_cols] = df[num_cols].round(decimals)
     return df
-
-
-
-
-
-
 
 # ===================================================================
 # Load Data
