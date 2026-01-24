@@ -1,0 +1,41 @@
+earth_engine:
+  project_id: "wildfire-canada-475322"  # "YOUR_GOOGLE_CLOUD_PROJECT_ID"
+  public_avcan_ee_asset: "projects/wildfire-canada-475322/assets/AvCan_Wildfire_Explorer/AvCan_fires_1990_2024" # Public access for Avcan fires EE asset
+
+google_cloud_storage:
+  GCS_bucket: "avcan_wildfire_explorer_stage_a" # "YOUR_GOOGLE_CLOUD_STORAGE_BUCKET"
+  export_prefix: "exports/stage_A2"
+  batch_size: 25
+
+processing:
+  tile_scale: 4
+  scale_m: 30 # sampling scale used during zonal statistics
+  poly_simp: 60
+  vector_scale: 45
+  cloud_coverage: 60
+  max_patch_size_pixels: 1024
+
+thresholds:
+  dnbr_min: 0.2
+  min_patch_area_ha: 10
+  r_threshold: 0.60
+
+docs:
+  mixed_label: "Mixed"
+  min_patch_pixels: "≈ 49–50"
+  connectivity: "8-neighbour"
+  scale: "45m x 45m"
+
+parameters:
+  maximum_tasks_active: 6
+  submission_sleep: 2
+  eight_connected_value: true
+  min_year: 1990
+  max_year: 2024
+
+overrides:
+  enabled: false    # Enable overrides for using customn Google EE asset
+  avcan_fires_asset_id: null
+  min_year: null
+  max_year: null
+  updated_at: null

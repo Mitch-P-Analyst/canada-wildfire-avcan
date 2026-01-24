@@ -19,42 +19,23 @@ from __future__ import annotations
 import time
 from typing import List, Dict, Any
 import ee
+from pathlib import Path
+import sys
 
 # ===================================================================
-# CONFIG
+# Directories
 # ===================================================================
-
-# Google Cloud Storage (GCS)
-# =================================================================
-
-
-# ========== Outputs for Google Earth Engine exports =====================================
-# GCS Project
-PROJECT_ID = "wildfire-canada-475322"
-
-# Project folder
-STAGE_A2_FOLDER = "projects/wildfire-canada-475322/assets/AvCan_Wildfire_Explorer/Stage_A2"
-
-# GCS bucket
-GCS_BUCKET = "avcan_wildfire_explorer_stage_a"
-
-# Bucket folder
-GCS_PREFIX = "exports/stage_A2"
-
-# Batch sizing: start conservative; lower if exports shard or fail
-BATCH_SIZE = 25
-
-# Task throttling
-MAX_ACTIVE_TASKS = 4
-SLEEP_BETWEEN_SUBMISSIONS = 2
-POLL_SECONDS = 30
+REPO_ROOT = Path(__file__).resolve().parent.parent
+data_dir = REPO_ROOT / 'data/'
+analysis_dir = data_dir / 'processed' / 'analysis/'
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 # ===================================================================
-# EE Intialized
+# Components
 # ===================================================================
-print("\nInitializing Google Earth Engine...")
-ee.Initialize(project=PROJECT_ID)
-print("Complete.\n")
+from src.config_utils import read_yaml, pause
+    
 
 # ===================================================================
 # Helper Functions
@@ -125,6 +106,80 @@ def merge_assets_client_side(asset_ids: List[str]) -> ee.FeatureCollection:
     return merged
 
 # ===================================================================
+# CONFIG
+# ===================================================================
+
+# Google Earth Engine 
+# =================================================================
+ee_yaml_path = REPO_ROOT / "scripts/config/google_ee.yaml"
+ee_yaml = read_yaml(ee_yaml_path, strict=True)
+
+# ========== YAML Values =====================================
+ee_project = ee_yaml.get("earth_engine", {}) or {}
+params = ee_yaml.get("parameters", {}) or {}
+gcs = ee_yaml.get("google_cloud_storage", {}) or {}
+
+# ======= EE Setup =======#
+ee_project_id = ee_project.get("project_id")
+if not ee_project_id:
+    raise ValueError("Missing earth_engine.project_id in google_ee.yaml")
+
+gcs_bucket = gcs.get("GCS_bucket")
+if not gcs_bucket:
+    raise ValueError("Missing earth_engine.gcs_bucket in google_ee.yaml")
+
+
+# Google Cloud Storage (GCS)
+# =================================================================
+
+# Directories 
+# =================================================================
+# GCS Project
+PROJECT_ID = ee_project_id
+# Project folder
+STAGE_A2_FOLDER = f"projects/{ee_project_id}/assets/AvCan_Wildfire_Explorer/Stage_A2"
+# GCS bucket
+GCS_BUCKET = gcs_bucket
+
+# ======= Constants =======#
+# Bucket folder
+GCS_PREFIX = gcs.get("export_prefix")
+
+#======= Parameters =======#
+
+# ==== Task Throttling ====#
+BATCH_SIZE = int(gcs.get("batch_size",25))
+MAX_ACTIVE_TASKS = int(params.get("maximum_tasks_active", 6))   # READY + RUNNING combined
+SLEEP_BETWEEN_SUBMISSIONS = int(params.get("submission_sleep", 2))  # Seconds
+POLL_SECONDS = 30
+
+# ===================================================================
+# EE Intialized
+# ===================================================================
+print("\nInitializing Google Earth Engine...")
+print(f" EE Project: {PROJECT_ID}")
+ee.Initialize(project=PROJECT_ID)
+print(" Complete.\n")
+pause(1)
+print(f"Export asset folder (Stage A2):{STAGE_A2_FOLDER}")
+pause(2)
+print(f"Google Cloud Storage (GCS) output bucket: {GCS_BUCKET}")
+pause(2)
+
+# ===================================================================
+# Inputs
+# ===================================================================
+print(f"""
+Export Parameters
+    Max Active Tasks: {MAX_ACTIVE_TASKS}
+    Sleep seconds: {SLEEP_BETWEEN_SUBMISSIONS}
+    Batch size: {BATCH_SIZE}
+    Poll seconds: {POLL_SECONDS}
+    """)
+pause(2.5)
+
+
+# ===================================================================
 # Main Function
 # ===================================================================
 def main() -> None:
@@ -136,7 +191,9 @@ def main() -> None:
 
     print(f"Found {len(asset_ids)} Stage_A2 TABLE assets.")
     print(f"Batch size: {BATCH_SIZE} -> {len(batches)} export task(s)\n")
-    print(f"GCS bucket: gs://{GCS_BUCKET}/{GCS_PREFIX}\n")
+    print(f"GCS bucket export path: gs://{GCS_BUCKET}/{GCS_PREFIX}\n")
+    pause(2)
+    print("\nBegin.\n")
 
     active: Dict[str, Dict[str, Any]] = {}
 

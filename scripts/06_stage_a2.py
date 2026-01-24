@@ -22,65 +22,124 @@ Adds:
 # ===================================================================
 import time
 import ee
+from pathlib import Path
+import sys
+
+# ===================================================================
+# Directories
+# ===================================================================
+REPO_ROOT = Path(__file__).resolve().parent.parent
+data_dir = REPO_ROOT / 'data/'
+analysis_dir = data_dir / 'processed' / 'analysis/'
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+    
+
+# ===================================================================
+# Components
+# ===================================================================
+from src.config_utils import read_yaml, pause
 
 # ===================================================================
 # Configs
 # ===================================================================
-PROJECT_ID = "wildfire-canada-475322"
 
-IN_FOLDER = "projects/wildfire-canada-475322/assets/AvCan_Wildfire_Explorer/Stage_A1"
-OUT_FOLDER = "projects/wildfire-canada-475322/assets/AvCan_Wildfire_Explorer/Stage_A2"
+# Google Earth Engine 
+# =================================================================
+ee_yaml_path = REPO_ROOT / "scripts/config/google_ee.yaml"
+ee_yaml = read_yaml(ee_yaml_path, strict=True)
+
+
+# ========== YAML Values =====================================
+ee_project = ee_yaml.get("earth_engine", {}) or {}
+overrides = ee_yaml.get("overrides", {}) or {}
+params = ee_yaml.get("parameters", {}) or {}
+thresholds = ee_yaml.get("thresholds", {}) or {}
+proc = ee_yaml.get("processing", {}) or {}
+docs = ee_yaml.get("docs", {}) or {}
+
+
+# ======= EE Setup =======#
+ee_project_id = ee_project.get("project_id")
+if not ee_project_id:
+    raise ValueError("Missing earth_engine.project_id in google_ee.yaml")
+
+
+# ========== YAML Values =====================================
+
+# ======= Parameters =======#
+MAX_ACTIVE_TASKS = int(params.get("maximum_tasks_active", 6))   # READY + RUNNING combined
+SLEEP_BETWEEN_SUBMISSIONS = int(params.get("submission_sleep", 2))  # Seconds
+
+# ======= Thresholds =======#
+
+# Assess mean cardinal direction/aspect of identified Burn Severity patch
+ASPECT_R_THRESHOLD = float(thresholds.get("r_threshold", 0.60))  # mean aspect is shown only if coherence is sufficiently high
+
+ASPECT_MIXED_LABEL = docs.get("mixed_label", "Mixed")
+# ======= Processing =======#
+
+# ==== Memory Mitigation ====#
+# If Google EE memory limitations are apparent, adjust imagery processing variables.
+# ===========================#
+
+# EE tileScale (server-side chunking). Increase if simplification is insufficient.
+TILESCALE_VECT = int(proc.get("tile_scale", 4))     # retry ladder: 4 → 8 → 16 MAX
+
+# sampling scale used during zonal statistics (reduceRegions) over DEM/slope/aspect.
+SCALE_M = int(proc.get("scale_m", 30))     # retry ladder: 30 → 45 → 60
+
+# ======= Constants =======#
+ASPECT_LABELS = ee.List(["N", "NE", "E", "SE", "S", "SW", "W", "NW"])
+PI = ee.Number(3.141592653589793)
+
+# Directories 
+# =================================================================
+PROJECT_ID = ee_project_id
+
+IN_FOLDER = f"projects/{ee_project_id}/assets/AvCan_Wildfire_Explorer/Stage_A1"
+OUT_FOLDER = f"projects/{ee_project_id}/assets/AvCan_Wildfire_Explorer/Stage_A2"
 
 # ===================================================================
 # EE Initialize
 # ===================================================================
 print("\nInitializing Google Earth Engine...")
+print(f" EE Project: {PROJECT_ID}")
 ee.Initialize(project=PROJECT_ID)
 print(" Complete.\n")
+pause(1)
+print(f"Input asset folder (Stage A1): {IN_FOLDER}")
+pause(2)
+print(f"Output asset folder (Stage A2): {OUT_FOLDER}")
+pause(2)
 
 # ===================================================================
 # Inputs
 # ===================================================================
-
-# Parameters
-# =================================================================
-MAX_ACTIVE_TASKS = 6            # READY + RUNNING combined
-SLEEP_BETWEEN_SUBMISSIONS = 2   # Seconds
 
 print(f"""\n
 Assessment Parameters
     Max Active Tasks: {MAX_ACTIVE_TASKS}
     Sleep seconds: {SLEEP_BETWEEN_SUBMISSIONS}
     """)
+pause(2.5)
 
-# ======= Earth Engine Memory Mitigation Parameters =======#
-# If Google EE memory limitations are apparent, adjust imagery processing parameters below.
-
-# EE tileScale (server-side chunking). Increase if simplification is insufficient.
-TILE_SCALE = 4  # increase (e.g., 8 or 16) if you hit memory limits
-
-# sampling scale used during zonal statistics (reduceRegions) over DEM/slope/aspect.
-SCALE_M = 30    # retry ladder: 30 → 45 → 60
-
-# ======= Constants =======#
-# Assess mean cardinal direction/aspect of identified Burn Severity patch
-# mean aspect is shown only if coherence is sufficiently high
-ASPECT_R_THRESHOLD = 0.60
-ASPECT_MIXED_LABEL = "Mixed"
-ASPECT_LABELS = ee.List(["N", "NE", "E", "SE", "S", "SW", "W", "NW"])
-PI = ee.Number(3.141592653589793)
 
 print(f"""
 Google EE Memory Mitation Parameters.
-    Tilescale: {TILE_SCALE}
+    Tilescale: {TILESCALE_VECT}
     Sampling scale: {SCALE_M}
-
+    """)
+pause(2.5)
+print(f"""
 Thresholds.
     To assess mean cardinal direction/aspect.
         minimum mean threshold: {ASPECT_R_THRESHOLD}
     Otherwise: {ASPECT_MIXED_LABEL}
 
     """)
+pause(2.5)
 
 # ===================================================================
 # Helper Functions
@@ -142,9 +201,9 @@ def poll_active(active: dict, poll_seconds: int) -> None:
             continue
 
         if state == "COMPLETED":
-            print(f"[OK] {tid} :: {base} -> {out_asset_id}")
+            print(f"[OK] {tid} :: -> {out_asset_id}")
         else:
-            print(f"[FAIL] {tid} :: {base} -> {out_asset_id} :: {state} :: {st.get('error_message','')}")
+            print(f"[FAIL] {tid} :: -> {out_asset_id} :: {state} :: {st.get('error_message','')}")
         done.append(tid)
 
     for tid in done:
@@ -284,7 +343,7 @@ def enrich_fc_with_terrain(fc: ee.FeatureCollection) -> ee.FeatureCollection:
         collection=fc,              # Stage A1 feature collection geometry
         reducer=reducer,            # minMax + mean + standard deviation 
         scale=SCALE_M,
-        tileScale=TILE_SCALE,
+        tileScale=TILESCALE_VECT,
         maxPixelsPerRegion=1e9,
     )
             # fc_stats output are computations from the reducer upon the 4 pixel bands of geometry input.
@@ -327,7 +386,7 @@ def enrich_fc_with_terrain(fc: ee.FeatureCollection) -> ee.FeatureCollection:
 
         # ======= Circular mean =======#
         # Recover the mean direction from mean unit-vector components (circular stats)
-        mean_rad = sin_mean.atan2(cos_mean)  # atan2(y, x) -> mean angle in radians
+        mean_rad = cos_mean.atan2(sin_mean)  # Earth Engine: x.atan2(y) returns atan2(y, x)
         mean_deg = (                         # radians -> degrees, normalized to [0, 360)
             mean_rad.multiply(180).divide(PI)
             .add(360)

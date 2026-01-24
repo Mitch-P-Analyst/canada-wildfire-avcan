@@ -25,93 +25,127 @@ if str(REPO_ROOT) not in sys.path:
 # ===================================================================
 # Components
 # ===================================================================
-from src.config_utils import read_yaml
+from src.config_utils import read_yaml, pause
 
 
 # ===================================================================
 # Configs
 # ===================================================================
 
-# Stage A thresholds 
+# Google Earth Engine 
 # =================================================================
-
-stage_a_yaml_path = Path( REPO_ROOT / "streamlit_app/config/stage_a.yaml")
-stage_a_yaml = read_yaml(stage_a_yaml_path)
-
-thresholds = stage_a_yaml.get("thresholds")
-
-dnbr_min =  thresholds.get("dnbr_min")
-min_patch_area_ha = thresholds.get("min_patch_area_ha")
+ee_yaml_path = REPO_ROOT / "scripts/config/google_ee.yaml"
+ee_yaml = read_yaml(ee_yaml_path, strict=True)
 
 
-# Google Earth Engine  
+# ========== YAML Values =====================================
+ee_project = ee_yaml.get("earth_engine", {}) or {}
+overrides = ee_yaml.get("overrides", {}) or {}
+params = ee_yaml.get("parameters", {}) or {}
+thresholds = ee_yaml.get("thresholds", {}) or {}
+proc = ee_yaml.get("processing", {}) or {}
+
+# ======= EE Setup =======#
+ee_project_id = ee_project.get("project_id")    # Google Cloud Project
+if not ee_project_id:
+    raise ValueError("Missing earth_engine.project_id in google_ee.yaml")
+
+# ========== EE Assets ==============#
+default_asset = ee_project.get("public_avcan_ee_asset")
+use_override = bool(overrides.get("enabled"))
+
+avcan_asset = overrides.get("avcan_fires_asset_id") if use_override else None
+avcan_asset = avcan_asset or default_asset
+
+min_year = (overrides.get("min_year") if use_override else None) or params.get("min_year")
+max_year = (overrides.get("max_year") if use_override else None) or params.get("max_year")
+min_year = int(min_year)
+max_year = int(max_year)
+
+# ======= Thresholds =======#int
+dnbr_min = float(thresholds.get("dnbr_min",0.2))
+min_patch_area_ha = float(thresholds.get("min_patch_area_ha",10))
+
+HIGH_THR = dnbr_min
+MIN_PATCH_HA = min_patch_area_ha
+
+# ======= Parameters =======#
+YEARS = list(range(min_year, max_year + 1))  # Last list item is exclusive
+MAXIMUM_TASKS_ACTIVE = int(params.get("maximum_tasks_active", 6))   # READY + RUNNING combined
+SLEEP_BETWEEN_SUBMISSIONS = int(params.get("submission_sleep", 2))  # Seconds
+EIGHT_CONNECTED = bool(params.get("eight_connected_value", True))
+
+
+# ========== Processing =====================================
+
+# ==== Memory Mitigation ====#
+# If Google EE memory limitations are apparent, adjust imagery processing variables.
+# ===========================#
+
+# Polygon simplification (meters). Try increasing first for memory failures.
+SIMPLIFY_M = int(proc.get("poly_simp", 60))    # retry ladder: 60 → 90 → 120 → 250
+
+# EE tileScale (server-side chunking). Increase if simplification is insufficient.
+TILESCALE_VECT = int(proc.get("tile_scale", 4))    # retry ladder: 4 → 8 → 16 MAX
+
+# sampling scale used during raster → vector polygonization (reduceToVectors) in meters. Adjust last.
+VECT_SCALE = int(proc.get("vector_scale", 45))   # retry ladder: 30 → 45 → 60 → 90 MAX
+
+
+MAX_PATCH_SIZE_PIX = int(proc.get("max_patch_size_pixels", 1024))
+CLOUD_COVER_MAX = int(proc.get("cloud_coverage", 60))
+MAX_PATCH_PIX = round(((MIN_PATCH_HA * 1e4) / (VECT_SCALE * VECT_SCALE)),2)
+
+
+# Directories
 # =================================================================
 NO_FIRES_JSON = analysis_dir / "stage_A/stage_A1/stage_A1_no_fires_jobs.json"
 
-AVCAN_TABLE_ID = "projects/wildfire-canada-475322/assets/AvCan_Wildfire_Explorer/AvCan_fires_1990_2024"
-OUT_FOLDER     = "projects/wildfire-canada-475322/assets/AvCan_Wildfire_Explorer/Stage_A1"
+PROJECT_ID = ee_project_id
 
-PROJECT_ID = "wildfire-canada-475322"
+AVCAN_TABLE_ID = avcan_asset
+OUT_FOLDER     = f"projects/{ee_project_id}/assets/AvCan_Wildfire_Explorer/Stage_A1"
 
-print('Py file 04_avcan_fires_overlay output file uploaded to Google Earth Engine as cloud asset.')
-print(f" {AVCAN_TABLE_ID}")
+
 
 # ===================================================================
 # EE Initialize
 # ===================================================================
 print("\nInitializing Google Earth Engine...")
+print(f" EE Project: {PROJECT_ID}")
 ee.Initialize(project=PROJECT_ID)
 print(" Complete.\n")
+pause(1)
+print("Using AvCan fires asset:", avcan_asset)
+pause(1)
+print(f"Stage A1 Output folder: {OUT_FOLDER}")
+pause(2)
 
 # ===================================================================
 # Inputs
 # ===================================================================
 
-# Parameters 
-# =================================================================
-YEARS = list(range(2008, 2025))  # Last list item is exclusive
-
-MAXIMUM_TASKS_ACTIVE = 6             # READY + RUNNING combined
-SLEEP_BETWEEN_SUBMISSIONS = 2    # Seconds
 print(f"""\n
 Assessment Parameters
     Max Active Tasks: {MAXIMUM_TASKS_ACTIVE}
     Sleep seconds: {SLEEP_BETWEEN_SUBMISSIONS}
-    Date Range: {YEARS})
+    Year range: {min_year}–{max_year}
 
     """)
-
-# ========== Processing =====================================
-
-# ======= Earth Engine Memory Mitigation Parameters =======#
-# If Google EE memory limitations are apparent, adjust imagery processing parameters below.
-
-# Polygon simplification (meters). Try increasing first for memory failures.
-SIMPLIFY_M = 60   # retry ladder: 60 → 90 → 120 → 250
-
-# EE tileScale (server-side chunking). Increase if simplification is insufficient.
-TILESCALE_VECT = 4     # retry ladder: 4 → 8 → 16 MAX
-
-# sampling scale used during raster → vector polygonization (reduceToVectors) in meters. Adjust last.
-VECT_SCALE = 45  # retry ladder: 30 → 45 → 60 → 90 MAX
-
-# ======= Constants =======#
-CLOUD_COVER_MAX = 60
-HIGH_THR = dnbr_min
-MIN_PATCH_HA = min_patch_area_ha
-MAX_PATCH_PIX = round(((MIN_PATCH_HA * 1e4) / (VECT_SCALE * VECT_SCALE)),2)
-MAX_PATCH_SIZE_PIX = 1024
-EIGHT_CONNECTED = True
-
+pause(2.5)
 print(f"""
 Google EE Memory Mitation Parameters.
     Polygon Vectorisation: {SIMPLIFY_M}
     Tilescale: {TILESCALE_VECT}
     Processing scale: {VECT_SCALE}
-      
+      """)
+pause(1.5)
+print(f"""
 Landsat Imagery processing parameters.
     Image composite cloud cover maximum: {CLOUD_COVER_MAX}
-
+    """)
+pause(1.5)
+print(f"""
 Patches parameters.
     dNBR Threshold: {HIGH_THR}
     Minimum patch area (ha): {MIN_PATCH_HA}
@@ -119,7 +153,7 @@ Patches parameters.
     Maximum patch size (pixels): {MAX_PATCH_SIZE_PIX}
     8-neighbour Pixel connectivity: {EIGHT_CONNECTED}
       """)
-
+pause(3.5)
 
 # ===================================================================
 # Function Helpers
@@ -275,6 +309,7 @@ def add_nbr_89(img: ee.Image) -> ee.Image:
 # ===================================================================
 # Main Function
 # ===================================================================
+print("\nRunning main Stage A1 function.\n")
 def run_stage_a1(avcan_fc: ee.FeatureCollection, region: str, subregion: str, fire_year: int, fireid: Optional[int] = None) -> ee.FeatureCollection:
     empty_fc = ee.FeatureCollection([])
     """
@@ -399,55 +434,57 @@ regions = avcan.aggregate_array("region").distinct().getInfo()
 # =================================================================
 
 # ========== All Regions =====================================
-# regions = [r for r in regions if r in set(regions)]
-# print(f"Running regions ({len(regions)}): {regions}")
+regions = [r for r in regions if r in set(regions)]
+print(f"""Running regions ({len(regions)}): 
+      {regions}""")
+pause(5)
 
 # ======= Specifc Region Selection =====================================
 
-SPECIFIC_REGION = [
-    "Cariboos",
-    "Kootenay_Boundary",
-    "North_Columbia",
-    "South_Columbia",
-    "Purcells",
-    "South_Coast_Inland"
-]
-print('\nSpecifc region(s) selection in place.')
+# SPECIFIC_REGION = [
+#     "Cariboos",
+#     "Kootenay_Boundary",
+#     "North_Columbia",
+#     "South_Columbia",
+#     "Purcells",
+#     "South_Coast_Inland"
+# ]
+# print('\nSpecifc region(s) selection in place.')
 
-regions = [r for r in regions if r in set(SPECIFIC_REGION)]
-print(f"Running regions ({len(regions)}): {regions}")
+# regions = [r for r in regions if r in set(SPECIFIC_REGION)]
+# print(f"Running regions ({len(regions)}): {regions}")
 
 # Subregion Seleciton 
 # =================================================================
 
 # ========== All Subregions =====================================
 
-# subregions_by_region: Dict[str, List[str]] = {}
-# for r in regions:
-#     subs = (
-#         avcan.filter(ee.Filter.eq("region", r))
-#                 .aggregate_array("subregion")
-#                 .distinct()
-#                 .getInfo()
-#                 )
-#     subregions_by_region[r] = [s for s in subs if s is not None]
+subregions_by_region: Dict[str, List[str]] = {}
+for r in regions:
+    subs = (
+        avcan.filter(ee.Filter.eq("region", r))
+                .aggregate_array("subregion")
+                .distinct()
+                .getInfo()
+                )
+    subregions_by_region[r] = [s for s in subs if s is not None]
 
 # ======= Specific Subregion Selection =======#
 
-print("\nSpecifc subregion(s) selection in place.")
-subregions_by_region: Dict[str, List[str]] = {}
-for r in regions:
-    specific_sub = [
-        "Quesnel",
-        "South_Okanagan",
-        "Jordan",
-        "St.Mary",
-        "Harrison_Fraser",
-        "Gold",
-        "Central_Selkirk",
-        "Stein"
-    ]
-    subregions_by_region[r] = [s for s in specific_sub]
+# print("\nSpecifc subregion(s) selection in place.")
+# subregions_by_region: Dict[str, List[str]] = {}
+# for r in regions:
+#     specific_sub = [
+#         "Quesnel",
+#         "South_Okanagan",
+#         "Jordan",
+#         "St.Mary",
+#         "Harrison_Fraser",
+#         "Gold",
+#         "Central_Selkirk",
+#         "Stein"
+#     ]
+#     subregions_by_region[r] = [s for s in specific_sub]
 
 
 
@@ -714,7 +751,7 @@ jobs: List[JobKey] = [(r, s, y, None) for r in regions for s in subregions_by_re
 # Run Jobs 
 # =================================================================
 
-
+print("\nBegin.\n")
 results = run_all_jobs(
     jobs=jobs,
     max_active_tasks=MAXIMUM_TASKS_ACTIVE,

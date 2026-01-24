@@ -1,9 +1,6 @@
 # ===================================================================
 # Packages
 # ===================================================================
-
-# Operational 
-# =================================================================
 import os
 import sys 
 import pandas as pd
@@ -14,11 +11,7 @@ import json
 import re
 import zipfile
 import shutil
-
-# Visualisations 
-# =================================================================
-import plotly.express as px
-import plotly.graph_objects as go
+import ee
 
 # ===================================================================
 # Directories
@@ -28,6 +21,29 @@ data_dir = REPO_ROOT / 'data/'
 processed_dir = data_dir / 'processed' / 'analysis/'
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
+
+
+# ===================================================================
+# Components
+# ===================================================================
+from src.config_utils import read_yaml, ee_asset_exists, ee_upload_table, set_avcan_overrides
+from src.config_utils import ee_ensure_tree
+
+
+# ===================================================================
+# Configurations
+# ===================================================================
+
+# Google Earth Engine 
+# =================================================================
+ee_yaml_path = Path( REPO_ROOT / "scripts/config/google_ee.yaml")
+ee_yaml = read_yaml(ee_yaml_path)
+
+ee_project = ee_yaml.get("earth_engine", {}) or {}
+
+ee_project_id = ee_project.get("project_id")
+if not ee_project_id:
+    raise ValueError("Missing earth_engine.project_id in google_ee.yaml")
 
 # ===================================================================
 # Helper Functions
@@ -55,7 +71,8 @@ def zip_shapefile_components(files, zip_path):
     zip_path = Path(zip_path)
     zip_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+    with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED, allowZip64=True) as zf:
+
         for f in files:
             f = Path(f)
             # Store just the filename inside the archive
@@ -227,6 +244,9 @@ out_dir = processed_dir / 'avalanche_canada/'
 fires_out_dir = processed_dir / 'avalanche_canada/fires/'
 regions_out_dir = processed_dir / 'avalanche_canada/regions/'
 out_dir.mkdir(parents=True, exist_ok=True)
+fires_out_dir.mkdir(parents=True, exist_ok=True)
+regions_out_dir.mkdir(parents=True, exist_ok=True)
+
 
 
 # AvCan Fires 
@@ -259,20 +279,76 @@ output_shp_files = list(fires_out_dir.glob(f"AvCan_fires_{AvCan_fires_year_min}_
 
 
 # Choose the zip filename (same stem as shapefile components)
-zip_name = fires_out_dir / f"AvCan_fires_{AvCan_fires_year_min}_{AvCan_fires_year_max}.zip"
+stem = f"AvCan_fires_{AvCan_fires_year_min}_{AvCan_fires_year_max}"
+zip_name = fires_out_dir / f"{stem}.zip"
+
+
+# Only include shapefile component extensions (not .zip)
+allowed_ext = {".shp", ".shx", ".dbf", ".prj", ".cpg", ".qix", ".sbn", ".sbx"}
+
+output_shp_files = [
+    p for p in fires_out_dir.glob(f"{stem}.*")
+    if p.suffix.lower() in allowed_ext
+]
+
+# If a previous zip exists, delete it (optional but clean)
+if zip_name.exists():
+    zip_name.unlink()
 
 print("\nZipping AvCan fires shapefiles...")
 zip_shapefile_components(output_shp_files, zip_name)
 print(f"Created archive: {zip_name}")
 
+# ======= Upload Zipped shapefile as EE Asset =======#
 
+print("Uploading Avcan fires ZIP as Google Earth Engine asset.")
+print(' Initializing Google Earth Engine...\n')
+print(f" EE Project: {ee_project_id}")
+ee.Initialize(project=ee_project_id)
 
+print('Ensuring asset folder structure.')
+
+ee_ensure_tree(ee_project_id, "AvCan_Wildfire_Explorer/Stage_A2")
+ee_ensure_tree(ee_project_id, "AvCan_Wildfire_Explorer/Stage_A1")
+print(f"""
+    {ee_project_id}/
+        └── assets/
+            └── AvCan_Wildfire_Explorer/
+                        ├── Stage_A1/
+                        └── Stage_A2/
+      
+      """)
+EE_Asset_id = (
+    f"projects/{ee_project_id}/assets/AvCan_Wildfire_Explorer/"
+    f"AvCan_fires_{AvCan_fires_year_min}_{AvCan_fires_year_max}"
+)
+
+if ee_asset_exists(EE_Asset_id):
+    print(f" Skipping upload (asset exists): {EE_Asset_id}")
+else:
+    print(f" Uploading.. {EE_Asset_id}")
+    ee_upload_table(zip_name, EE_Asset_id, wait=False)
+    print(" Complete.")
+
+    print(" Updating EE asset congif in yaml.")
+
+    set_avcan_overrides(
+        ee_yaml_path,
+        enabled=False,      # Set overrides = True to use them
+        avcan_fires_asset_id=EE_Asset_id,
+        min_year=AvCan_fires_year_min,
+        max_year=AvCan_fires_year_max,
+    )
+    print(f" Updated overrides in: {ee_yaml_path}")
+    print("\nOverride values written; set overrides.enabled=true to use them.")
+
+    
 # AvCan Regions 
 # =================================================================
 
 # ========== GeoJSON Export =====================================
 AvCan_regions_path_geojson = regions_out_dir / f"AvCan_cleaned_subregions.geojson"
-print('Exporting AvCan subregions GeoJSON...')
+print('\nExporting AvCan subregions GeoJSON...')
 
 try:
     avcan_clean.to_file(AvCan_regions_path_geojson, driver="GeoJSON")
@@ -301,8 +377,6 @@ regions_zip_name = regions_out_dir / f"AvCan_cleaned_subregions.zip"
 print("\nZipping AvCan regions shapefiles...")
 zip_shapefile_components(regions_output_shp_files, regions_zip_name)
 print(f"Created archive: {regions_zip_name}")
-
-
 
 
 # ===================================================================
