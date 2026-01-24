@@ -28,7 +28,7 @@ Stage A outputs are best interpreted as a **screening layer** for exploratory re
 ---
 
 ### Motivation
-As an early-career data scientist, this self-guided project is a practical test of building an end-to-end geospatial pipeline. From data acquisition and spatial processing to analysis, visualization and deployment. It combines my work experience in the adventure sports and tourism industries with personal recreation in mountainous environments. Utilising my skillsets in applied geospatial data science using Google Earth Engine and Landsat imagery (dNBR/NDVI), terrain metrics, GeoPandas/Parquet workflows, and a Streamlit application to communicate results in a field-relevant way.
+As an early-career data scientist, this self-guided project is a practical test of building an end-to-end geospatial pipeline. From data acquisition and spatial processing to analysis, visualization and deployment. It combines my work experience in the adventure sports and tourism industries with personal recreation in mountainous environments. Utilising my skillsets in applied geospatial data science using Google Earth Engine and Landsat imagery (dNBR/NDVI), terrain metrics, GeoPandas/Parquet workflows, and a Streamlit application to communicate results in an applied, user-facing way.
 
 --- 
 
@@ -94,7 +94,7 @@ streamlit run streamlit_app/Home.py
 ```
 
 ### Option 2: Full rebuild map layers
-Reproduce all datasets and derived layers (requires Google Earth Engine, exports, and longer runtimes), with the option to modifiy thresholds.
+Reproduce all datasets and derived layers (requires Google Earth Engine, personal project id, exports, and longer runtimes), with the option to modifiy thresholds.
 > Note: Reprocessing all scripts below may take >48 hours with Google Earth Engine's python API. 
 
 Run all python scripts the the **Pipeline** section below.
@@ -111,16 +111,29 @@ Run all python scripts the the **Pipeline** section below.
 - Clean and merge annual NBAC polygons into a single master fire-perimeter dataset
     - `scripts/03_clean_merge_nbac.py`
 
+- Create Google Cloud Project (GCP)and resulting Google Cloud Storage (GCS) Bucket
+    - [Create Google Cloud Project](https://developers.google.com/workspace/guides/create-project)
+    - [Create Google Cloud Storage Bucket](https://console.cloud.google.com/storage/overview)
+
+- Update YAML file with GCP Earth Engine Project ID and Google Cloud Storage (GCP) export bucket 
+    - `scripts/config/google_ee.yaml`
+        - `earth_engine`:
+            - `project_id`: # "YOUR_GCP_PROJECT_ID"
+        - `google_cloud_storage`:
+            -  `GCS_bucket` # "YOUR_GCS_BUCKET_PATH
+
+- (Optional) Modify **Stage A Burn Severity Patches** thresholds in yaml file 
+    - `scripts/config/google_ee.yaml`:
+        - `thresholds`:
+            - `dnbr_min`    # dNBR threshold for Stage A1 patches
+            - `min_patch_area_ha`   # Minimum size logic for Stage A1 patches
+            - `r_threshold` # Aspect coherence threshold for Stage A2 aspect labels
+
 - Spatially overlay NBAC fire perimeters with AvCan forecasting regions and retain only fires within AvCan coverage.
     - `scripts/04_AvCan_fires_overlay.py`
 
 - Identify Burn Severity Patches within AvCan fires with Google Earth Engine's python API. Looping through region/year and region/year/fireid arrangements.
     - `scripts/05_stage_a1.py`
-        - (Optional) Modify **Stage A Burn Severity Patches** thresholds in file `streamlit_app/config/stage_a.yaml`
-            - `dnbr_min`
-            - `min_patch_area_ha`
-
-        - If you change thresholds, you must rerun Stage A and rebuild app layers, otherwise the app may display thresholds that do not match the shipped dataset.
         - This script computes aggregated analyses of region-subregion-year groups, before re-try attempts on aggreates that met EE memory threshold, by analysing remaining individual Fire IDs.
 
 - Compute and append applicable geographical metadata to stage A1's Burn Severity Patches with Google Earth Engine's python API.
@@ -128,17 +141,24 @@ Run all python scripts the the **Pipeline** section below.
 
 - Compile and export batches of stage A2's Burn Severity Patches to Google Cloud Storage (GCS) and download to local.
     - `scripts/07_stage_a_ee_export.py`
-        - Pull Stage A2 GeoJSON exports from GCS (requires gsutil + auth)
-            ```bash
-            EXPORT_DIR="data/raw/stage_a2_geojson"
-            GCS_URI="gs://<your-bucket>/exports/stage_a2_geojson/*.geojson"
-            
-            mkdir -p "$EXPORT_DIR"
-            gsutil -m cp "$GCS_URI" "$EXPORT_DIR/"
-            ```
+
+- Pull Stage A2 GeoJSON exports from GCS (requires gsutil + auth)
+        - This python scripts produces a bash script using values from scripts/config/google_ee.yaml
+```bash
+python scripts/tools/render_readme_snippets.py
+``` 
+        - This resulting bash file downloads the batches Stage_A2 GeoJSON exports from GCS
+```bash
+bash scripts/tools/pull_stage_a2_from_gcs.sh
+```
 
 - Build streamlit application-ready map explorer layers.
     - `scripts/08_build_app_layers.py`
+
+- Run local streamlit application
+```bash
+streamlit run streamlit_app/Home.py
+```
 
 ---
 
@@ -193,7 +213,8 @@ Run all python scripts the the **Pipeline** section below.
         - Current avalanche and weather information (Stage A does not evaluate avalanche conditions)
         - Professional judgment (guides, land managers, local experts)
     Stage A is designed to support exploratory mapping and prioritization of follow-up, not to replace these checks.
-    - **Why it's used**: Highlights post-fire patches meeting configured severity and patch-size thresholds as **candidates for follow-on verification** (exploratory screening layer; not a suitability or safety layer).- **Shipped to app as**: `data/processed/app/Stage_A2_Burn_Severity_Patches.parquet` (GeoParquet; WGS84 / EPSG:4326)
+    - **Why it's used**: Highlights post-fire patches meeting configured severity and patch-size thresholds as **candidates for follow-on verification** (exploratory screening layer; not a suitability or safety layer).
+    - **Shipped to app as**: `data/processed/app/Stage_A2_Burn_Severity_Patches.parquet` (GeoParquet; WGS84 / EPSG:4326)
     - **Calibration and limitations:**: Stage A thresholds are calibrated as a practical, repeatable approach to highlight potential canopy-loss conditions using widely used spectral proxies. Calibration is anchored to a reference fire and region (South_Coast_Inland / Fire ID 1990_106). Results are sensitive to Landsat spatial resolution, seasonal composite window, regional vegetation differences, and timing of post-fire imagery. dNBR is a severity proxy and is not a direct measurement of canopy openness, hazard, access, or suitability.
     - **Thresholds** (from stage_a.yaml):
         - Difference Normalized Burn Ratio (dNBR) ≥ 0.2
@@ -283,6 +304,8 @@ canada-wildfire-avcan/
 │       └── NBAC/                               # Raw NBAC downloads by year
 │
 ├── scripts/
+│   ├── config/    
+│   │   └── google_ee.yaml                      # Google Earth Engine script threholds, callibrations, asset IDs and folder structures 
 │   ├── 01_download_nbacs.py                    # Download NBAC fire perimeters 
 │   ├── 02_download_statscan_provinces.py       # Download province/territory data
 │   ├── 03_clean_merge_nbac.py                  # Prepare NBAC fire perimeters 
