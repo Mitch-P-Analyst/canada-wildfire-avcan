@@ -40,7 +40,7 @@ def method_page() -> None:
     # Introduction
     # ===================================================================
     st.title("Method & Processes")
-    st.caption("Important: The Burn Severity Patches (Stage A) layer is a screening heuristic that highlights candidate areas for follow-on verification (e.g., current imagery review, local knowledge, and appropriate professional guidance). It is not a safety product and must not be used for route selection, terrain selection, or trip planning decisions.")
+    st.caption("Important: The Burn Severity Patches (Stage A) layer is a screening heuristic that highlights candidate areas for follow-on verification (e.g., current imagery review, local knowledge, and appropriate professional guidance). It is not a safety product and should not be used for route selection, terrain selection, or trip planning decisions.")
     st.divider()
 
     st.markdown("## Overview")
@@ -96,7 +96,7 @@ def method_page() -> None:
                 - `scripts/03_clean_merge_nbac.py`
             4. Spatially overlay NBAC fire perimeters with AvCan forecasting regions and retain only fires within AvCan coverage.
                 - `scripts/04_avcan_fires_overlay.py`
-            5. Identify *Burn Severity Patches* withn AvCan fires with Google Earth Engine's python API. Looping through region/year and region/year/fireid arrangements.
+            5. Identify *Burn Severity Patches* withn AvCan fires with Google Earth Engine's python API. Looping through region/subregion/year and region/subregion/year/fireid arrangements.
                 - `scripts/05_stage_a1.py`
             6. Compute and append applicable geographical metadata to stage A1's *Burn Severity Patches* with Google Earth Engine's python API.
                 - `scripts/06_stage_a2.py`
@@ -127,7 +127,7 @@ def method_page() -> None:
     """)
     # ========== Calibration =====================================
     st.markdown(f"""
-    #### Reference calibration
+    #### Reference Calibration
 
     {fmt_str(ref_note)} Calibration and resulting thresholds reference **{fmt_str(ref_region)}** fire GID **{fmt_str(ref_gid)}**
 

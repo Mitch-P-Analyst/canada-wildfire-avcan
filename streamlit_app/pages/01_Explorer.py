@@ -89,7 +89,8 @@ total_burn_km = nbac.get("total_burn_km")
 def mapp_application() -> None:
     st.title("Wildfire Explorer")
    
-    st.caption("Note: This Explorer is an informational mapping and analysis tool. The Burn Severity Patches (Stage A) layer is a screening heuristic that highlights candidate areas for follow-on verification (e.g., with current imagery, local knowledge, and appropriate professional guidance). It is not a safety product and must not be used for route selection, terrain selection, or trip planning decisions.")
+    st.caption("Note: This Explorer is an informational mapping and analysis tool. The Burn Severity Patches (Stage A) layer is a screening heuristic that highlights candidate areas for follow-on verification (e.g., with current imagery, local knowledge, and appropriate professional guidance). " \
+    "It is not a safety product and should not be used for route selection, terrain selection, or trip planning decisions.")
     st.divider()
     # Load Cached Layers 
     # =================================================================

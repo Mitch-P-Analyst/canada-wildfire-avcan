@@ -87,8 +87,7 @@ def map_layers_intro(
         fire_perim_list = [
         ("Region","The AvCan region the fire boundary resides in."),
         ("Subregion","The AvCan's subregion the fire boundary resides in."),
-        ("Year", "The year the fire occurred."),
-        ("Unique Fire ID (gid)","NBAC's assigned unique identification number"),
+        ("Unique Fire ID (gid)","NBAC's assigned unique identification number, including year of occurance."),
         ("Total Adjusted Area (ha)","NBAC’s calculated burned area (hectares).")
         ]
         _bullet_kv(fire_perim_list)
@@ -96,9 +95,9 @@ def map_layers_intro(
         
     with st.expander("##### Burn Severity Patches (Stage A)", expanded=False):
         st.markdown(f"""
-        Stage A of this AvCan Wildfire Explorer computes custom, derived **Burn Severity Patches** within NBAC fire perimeters. These patches are displayed as a seperate map layer with default <span style='color:#ff5a00;'>Orange Colour</span> perimeters. This colour can be changed in the **Legends** section of the sidebar.
+        Stage A of this AvCan Wildfire Explorer computes custom, derived **Burn Severity Patches** within NBAC fire perimeters. These patches are displayed as a seperate map layer with default <span style='color:#ff5a00;'>Orange Colour</span> perimeters and fill. This colour can be changed in the **Legends** section of the sidebar.
 
-        Burn Severity Patches are a screening heuristic that highlights post-fire areas meeting this project’s configurable severity and minimum patch-size criteria as candidates for follow-on verification (e.g., reviewing current imagery, consulting local knowledge, and applying appropriate professional guidance). This layer does not confirm on-the-ground conditions, access, hazards, or suitability, and it is not a safety or decision-support product.
+        Burn Severity Patches are a screening heuristic that highlights post-fire areas meeting this project’s callibrated burn severity and minimum patch-size criteria as candidates for follow-on verification (e.g., reviewing current imagery, consulting local knowledge, and applying appropriate professional guidance). This layer does not confirm on-the-ground conditions, access, hazards, or suitability, and it is not a safety or decision-support product.
 
         For information on how this layer is computed (thresholds, calibration reference, assumptions, and limitations), refer to the **Method** page.
 

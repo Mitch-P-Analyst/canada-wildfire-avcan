@@ -137,12 +137,14 @@ def roadmap_section() -> None:
 
     with st.expander("Regrowth Vegetation + Forest Inventory (Stage B - Planned)", expanded=False):
         st.markdown("""
-        A **Normalized Difference Vegetation Index (NDVI)** time-series will be computed on Stage A's Burn Severity Patches from each post-fire year to the current year. This assessment will aim to **calculate the amount of vegetation regrowth since fire occurance**.
+        A **Normalized Difference Vegetation Index (NDVI)** time-series will be computed for Stage A Burn Severity Patches from the first post-fire year through a selected “current year” (e.g., 2025). This assessment will add interpretation context by summarizing **post-fire vegetation regrowth and recovery** over time.
                     
-        Additionally, this project plans to integrate vegetation inventory data (specifically the British Columbia **Vegetation Resources Inventory (VRI)** ) to characterize applicable Stage A Burn Severity Patches with forest stand-structure attributes derived from the inventory's aerial photo interpretation and supporting field data. Potential stand-structure descriptors that may help interpret post-fire canopy conditions include canopy closure/openness, stand height, species composition, biomass proxies, and sparsity/openness classes.
+        Additionally, this project plans to integrate forest inventory data (initially the British Columbia **Vegetation Resources Inventory (VRI)** where available) to characterize **forest structure and composition** within each patch (e.g., canopy closure/openness, height class, age class, species composition, and density/biomass proxies).
         
-        For further information on techinical method and planned analytical processes can be found on the **Method** page.
-                                """)
+        Stage B outputs are intended to support **interpretation and prioritization for follow-on verification** (e.g., current imagery review and local knowledge).
+
+        Further information on technical method and planned analytical processes can be found on the **Method** page.
+             """)
 
     with st.expander("Validation (Planned)", expanded=False):
         validation_list = [
@@ -150,19 +152,22 @@ def roadmap_section() -> None:
         ]
         _bullet_list(validation_list)
 
-    with st.expander("Streamlit Performance + UX (Ongoing)", expanded=False):
-        performance_list = [
-            "Cache loaded layers and derived summaries to reduce page latency.",
-            "Differentiate Stage A vs Stage B clearly with toggles, legends, and consistent naming."
-        ]
-        _bullet_list(performance_list)
+    # with st.expander("Streamlit Performance + UX (Ongoing)", expanded=False):
+    #     performance_list = [
+    #         "Cache loaded layers and derived summaries to reduce page latency.",
+    #         "Differentiate Stage A vs Stage B clearly with toggles, legends, and consistent naming."
+    #     ]
+    #     _bullet_list(performance_list)
 
     with st.expander("Potential Plans (Future)", expanded=False):
         future_list = [
-            "Add average monthly snowpack depth summaries for Stage A + Stage B patches (context for terrain/snow response post-fire).",
-            "Add a **Forest Service Roads** map layer for insight to accessability of identified Stage A + B patches.",
-            "Add a selector and **export feature** to download polygon perimeter coordinates for chosen burn-severity patches and/or fire perimeters, enabling field navigation and planning in Google Earth, Gaia GPS, and Strava/FatMap."
+            "Add regional snowpack/climate context summaries, aggregated at the region/subregion level to support broader interpretation of post-fire landscape context.",
+            "Add a Forest Service Roads layer as optional land-management and access-context reference.",
+            "Add an export feature to download selected fire perimeters and patch polygons for offline analysis and verification workflows in GIS tools."
+
+        
         ]
+        
         _bullet_list(future_list)
 
 

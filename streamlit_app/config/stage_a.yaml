@@ -14,7 +14,6 @@ thresholds:
   dnbr_min: 0.2
   min_patch_area_ha: 10
   min_patch_pixels: "≈ 49–50"
-  dnbr_value: "moderate"    
   connectivity: "8-neighbour"
   scale: "45m x 45m"
   aspect_label: 0.6

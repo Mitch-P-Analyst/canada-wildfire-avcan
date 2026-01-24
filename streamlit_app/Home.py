@@ -69,17 +69,23 @@ avg_burn_area_per_year_km = nbac_stats.get("avg_burn_km2_per_year")
 # -------------------------------------------------------------------
 st.title("Avalanche Canada Wildfire Explorer")
 
-st.caption("Important: This application is an informational mapping and analysis tool. The Burn Severity Patches (Stage A) layer is a screening heuristic intended to highlight candidate areas for follow-on verification (e.g., using current imagery, local knowledge, and appropriate professional guidance). It is not a safety product and must not be used for route selection, terrain selection, or trip planning decisions.")
+st.caption("Important: This application is an informational mapping and analysis tool. The Burn Severity Patches (Stage A) layer is a screening heuristic intended to highlight candidate areas for follow-on verification (e.g., using current imagery, local knowledge, and appropriate professional guidance). It is not a safety product and should not be used for route selection, terrain selection, or trip planning decisions.")
 
 
 st.markdown(f"""
-The Canadian **National Burned Area Composite (NBAC)**, maintained by Natural Resources Canada, is a national geospatial dataset that maps and quantifies forest area burned each year across Canada. Compiled from provincial, territorial, and protected-area sources, NBAC is widely used to support analysis of wildfire impacts on ecosystems and landscapes.
+The Canadian **National Burned Area Composite (NBAC)**, maintained by Natural Resources Canada, is a national geospatial dataset that maps and quantifies forest area burned each year across Canada. 
+Compiled from provincial, territorial, and protected-area sources, NBAC is widely used to support analysis of wildfire impacts on ecosystems and landscapes.
             
-According to NBAC, since **{min_year}** Canada has experienced an average of **{fmt_num(avg_fire_count_per_year,2)} fires per year**, burning approximately **{fmt_num(avg_burn_area_per_year_ha,2)} hectares** annually ({fmt_num(avg_burn_area_per_year_km,2)} km²). That is roughly **half the area of Nova Scotia every year**. Despite the scale of this size, the footprint of wildfire can be easy to miss on the ground, even for those living in close proximity or people traveling through mountain landscapes.
+According to NBAC, since **{min_year}** Canada has experienced an average of **{fmt_num(avg_fire_count_per_year,2)} fires per year**, burning approximately **{fmt_num(avg_burn_area_per_year_ha,2)} hectares** annually ({fmt_num(avg_burn_area_per_year_km,2)} km²). 
+That is roughly **half the area of Nova Scotia every year**. Despite the scale of this size, the footprint of wildfire can be easy to miss on the ground, even for those living in close proximity or people traveling through mountain landscapes.
 
 **Avalanche Canada (AvCan)** is a **non-profit organization** that provides public avalanche safety information and education, including regional avalanche forecasts and hazard bulletins informed by professional observations and community-submitted reports.
+This project overlays NBAC wildfire perimeters with AvCan forecast regions to make wildfire impacts more tangible in mountainous terrain,
+and to support awareness of wildfire presence in mountain communities and region-based exploration of wildfire presence over time.
 
-This project overlays NBAC wildfire perimeters with Avalanche Canada (AvCan) forecast regions to make wildfire impacts more tangible in mountainous terrain and to support awareness of wildfire presence in mountain communities and region-based exploration of wildfire presence over time. In addition to mapping perimeters and statistics, the Explorer includes a derived layer, **Burn Severity Patches (Stage A)**, which applies spectral severity and minimum patch-size logic to highlight candidate post-fire areas, viable for follow-on verification of wildifre impact (e.g., exploring where canopy-loss conditions may exist, remaining biomass densities, tree species composition and spacing), or analyses such as regional trends in fire frequency, burned area, severity, and ignition causes, with potential applications in research, planning, and risk communication. 
+In addition to mapping perimeters and statistics, the Explorer includes a derived layer, **Burn Severity Patches (Stage A)**, which applies spectral severity and minimum patch-size logic 
+to highlight candidate post-fire areas viable for follow-on verification of wildifre impact (e.g. exploring tree canopy-loss, remaining biomass densities and tree species composition).
+This layer does not assess safety, access or suitability for in-field access.
 """)
 
 
@@ -94,17 +100,19 @@ st.markdown(
         
     ##### Explorer
 
-    An interactive topographic map for exploring wildfire perimeters within Avalanche Canada (AvCan) forecast regions and viewing region-filtered summary statistics. In addition to NBAC fire perimeters, the Explorer includes a derived **Burn Severity Patches (Stage A)** layer, which highlights post-fire areas that meet calibrated severity and minimum patch-size thresholds as candidates for follow-on verification. The methodology, calibration reference, assumptions, and limitations used to generate these patches are documented on the Method page.
+    An interactive topographic map for exploring wildfire perimeters and Burn Severity Patches within AvCan forecast regions, and viewing region-filtered summary statistics. 
 
     Use the Explorer to navigate by region and year range, compare wildfire presence across AvCan regions, and review how fire activity and derived patch coverage vary within regions and subregions.
 
     ##### Method
 
-    An overview of the analysis pipeline used to build this project, from raw NBAC wildfire perimeters to AvCan-filtered map layers and derived Burn Severity Patches. This page explains the key processing steps, calibrated thresholds, and assumptions used to identify patches, and documents the geospatial and analytical methods used throughout the workflow.
+    An overview of the analysis pipeline used to build this project, from raw NBAC wildfire perimeters to AvCan filtered map layers and derived Burn Severity Patches. 
+    This page explains the key processing steps, calibrated thresholds, and assumptions used to identify patches, while documentmenting the geospatial and analytical methods used throughout the workflow.
     
     ##### Data
 
-    A catalogue of the datasets and app layers used in the AvCan Wildfire Explorer. This page describes what each layer represents, where it was sourced from, and how it is packaged for the application (formats, CRS, and key fields). It also hosts broader, multi-year summary statistics for each dataset and derived layer, providing national/project-wide context that complements the Explorer’s region-filtered summaries.
+    A catalogue of the datasets and app layers used in the AvCan Wildfire Explorer. This page describes what each layer represents, where it was sourced from, 
+    and how it is packaged for the application. It also hosts broader, multi-year summary statistics for each dataset and derived layer, providing national/project-wide context that complements the Explorer’s region-filtered summaries.
     """
 )
 
