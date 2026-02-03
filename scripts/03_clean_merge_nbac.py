@@ -32,30 +32,16 @@ raw_dir = data_dir / "raw" / "NBAC"
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+# ===================================================================
+# Config Imports
+# ===================================================================
+from src.config_utils import unzip_to_folder
+
 
 
 # ===================================================================
 # Helper Functions
 # ===================================================================
-
-
-
-
-# Unzip all Shapefiles
-def unzip_to_folder(zip_path, extract_to):              # Unzip NBAC files to destination
-    """
-    Unzips a ZIP archive into a specified directory.
-    """
-    extract_to = Path(extract_to)
-    extract_to.mkdir(parents=True, exist_ok=True)
-
-    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        zip_ref.extractall(extract_to)                  # Read SHP to destination folder
-
-    macosx_folder = extract_to / '__MACOSX'
-    if macosx_folder.exists():
-        shutil.rmtree(macosx_folder)
-
 
 # Function to merge identifed rows split across description
 def merge_meta_rows(df, main_idx, extra_idxs):

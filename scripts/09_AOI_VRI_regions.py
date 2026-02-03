@@ -14,6 +14,7 @@ import sys
 REPO_ROOT = Path(__file__).resolve().parent.parent
 data_dir = REPO_ROOT / "data"
 analysis_dir = data_dir / "processed" / "analysis"
+app_dir = data_dir / "processed" / "app"
 
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -70,9 +71,9 @@ avcan_path = analysis_dir / "avalanche_canada" / "regions" / "AvCan_cleaned_subr
 avcan_shapes = gpd.read_file(avcan_path)
 print(f" AvCan regions loaded. CRS: {avcan_shapes.crs}\n")
 
-print("Loading Stage A Severity Patches shapefile...")
-stage_A_shp = analysis_dir / "stage_A" / "AvCan_Stage_A" / "AvCan_Stage_A_all_regions_SHP.shp"
-stage_A_polys = gpd.read_file(stage_A_shp)
+print("Loading Stage A Severity Patches...")
+stage_A_shp = app_dir / "Stage_A2_Burn_Severity_Patches.parquet"
+stage_A_polys = gpd.read_parquet(stage_A_shp)
 print(f" Stage A patches loaded. CRS: {stage_A_polys.crs}\n")
 
 # ===================================================================

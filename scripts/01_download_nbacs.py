@@ -1,12 +1,17 @@
-#-- Packages --#
-
+# ===================================================================
+# Imports
+# ===================================================================
 from pathlib import Path
 import re
 import requests
+import sys
 
-#-- Directories --#
-
+# ===================================================================
+# Directories
+# ===================================================================
 REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 RAW_DIR = REPO_ROOT / "data" / "raw" / "NBAC"
 RAW_ZIPS_DIR = RAW_DIR / "NBAC" / "zips"
@@ -17,8 +22,9 @@ RAW_ZIPS_DIR.mkdir(parents=True, exist_ok=True)
 print(f"Directory Download ZIP Files: {RAW_ZIPS_DIR}")
 print(f"Directory Download Raw Files: {RAW_DIR}\n")
 
-#-- Constants --#
-
+# ===================================================================
+# Constants
+# ===================================================================
 BASE_URL = "https://cwfis.cfs.nrcan.gc.ca/downloads/nbac/"
 
 print(f'Source for Canadian National Burn Area Composites (NBAC): \n {BASE_URL}')
@@ -26,9 +32,14 @@ print(f'Source for Canadian National Burn Area Composites (NBAC): \n {BASE_URL}'
 YEARS = range(1990, 2025)                       # Adjust to chosen years
 print(f'Selected years: {YEARS}\n')
 
+# ===================================================================
+# Config Imports
+# ===================================================================
+from src.config_utils import download_file
 
-
-#-- Helper functions --#
+# ===================================================================
+# Helper Functions
+# ===================================================================
 def find_latest_zip_filename(html: str, year: int) -> str | None:
     """
     Find the latest NBAC_<year>_YYYYMMDD.zip in the index HTML.
@@ -52,27 +63,10 @@ def find_latest_stats_filename(html: str) -> str | None:
     return sorted(set(matches))[-1]
 
 
-def download_file(fname: str, destination: Path) -> None:
-    """
-    Download fname from BASE_URL into destination, if not already present.
-    """
-    url = BASE_URL + fname
-    out_path = destination / fname
 
-    if out_path.exists():
-        print(f"Already have {fname}, skipping.")
-        return
-
-    print(f"Downloading {fname} ...")
-    with requests.get(url, stream=True, timeout=60) as r:
-        r.raise_for_status()
-        with open(out_path, "wb") as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-    print(f"Saved to {out_path}")
-
-
+# ===================================================================
+# Main
+# ===================================================================
 def main() -> None:
     # Grab the index page once
     html = requests.get(BASE_URL, timeout=30).text
@@ -84,7 +78,7 @@ def main() -> None:
             print(f"No NBAC zip found for {year}")
             continue
         print(f"Found {year} file: {zip_name}")
-        download_file(zip_name, RAW_ZIPS_DIR)
+        download_file(zip_name, RAW_ZIPS_DIR, BASE_URL)
 
     # --- Summary stats file ---
     stats_name = find_latest_stats_filename(html)
@@ -92,10 +86,17 @@ def main() -> None:
         print("No NBAC summarystats file found")
     else:
         print(f"Found summary stats file: {stats_name}")
-        download_file(stats_name, RAW_DIR)
+        download_file(stats_name, RAW_DIR, BASE_URL)
 
     print("\nCanada National Burned Area Composite (NBAC) data acquired.\n\n Py file complete.")
+
 
 print('Beginning download...')
 if __name__ == "__main__":
     main()
+
+# ===================================================================
+# Py File Complete
+# ===================================================================
+print("\nPy File Complete.")
+
