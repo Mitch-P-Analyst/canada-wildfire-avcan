@@ -13,6 +13,7 @@ keys/
 
 # ========= Data (large / derived / external) =========
 data/raw/NBAC/*
+data/raw/VRI/*
 data/processed/analysis/*
 data/processed/cached/*
 data/external/bc_vri/*
